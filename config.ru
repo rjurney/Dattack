@@ -1,2 +1,2 @@
-require 'index'
+require 'hello'
 run Sinatra::Application
