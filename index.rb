@@ -8,7 +8,8 @@ Mailgun::init("key-41q2py_zo0op3evcz7")
 
 get '/' do
   puts "Hello, worls!"
-  return "Hello, world!"
+  @params = 'foo'
+  erb :'index.html.erb'
 end
 
 post '/email/:data' do |data|
@@ -16,5 +17,4 @@ post '/email/:data' do |data|
   @params = params
   puts @params.inspect
   puts "Data: #{data.inspect}"
-  erb :'index.html.erb'
 end
