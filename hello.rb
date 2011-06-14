@@ -10,13 +10,15 @@ get '/' do
   puts "Hello, worls!"
   "Hello, world!"
 end
-#  @params = 'foo'
-#  erb :'index.html.erb'
-#end
 
-#post '/email/:data' do |data|
-#   puts "We got a request, yo!"
-#   @params = params
-#   puts @params.inspect
-#   puts "Data: #{data.inspect}"
-# end
+get '/foo'
+ @params = 'foo'
+ erb :'index.html.erb'
+end
+
+post '/email/:data' do |data|
+  puts "We got a request, yo!"
+  @params = params
+  puts @params.inspect
+  puts "Data: #{data.inspect}"
+end
