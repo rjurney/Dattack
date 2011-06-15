@@ -8,10 +8,12 @@ require 'erb'
 
 get '/' do
   puts "Hello, worls!"
+  params.each {|key, value| puts "Key: #{key} Value: #{value}"}
   "Hello, world!"
 end
 
-post '/email' do
+post '/email/:id' do |id|
+  puts "ID is: #{id}"
   puts "Incoming Email Post: "
   #params.each {|key, value| puts "Key: #{key} Value: #{value}"}
   "true"
