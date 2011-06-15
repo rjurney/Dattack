@@ -21,4 +21,5 @@ post '/email/:data' do |data|
   @params = params
   puts @params.inspect
   puts "Data: #{data.inspect}"
+  true
 end
