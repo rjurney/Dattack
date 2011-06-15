@@ -16,10 +16,10 @@ get '/foo' do
  erb :index
 end
 
-post '/email/:data' do |data|
+post '/email' do
   puts "We got a request, yo!"
   @params = params
   puts @params.inspect
-  puts "Data: #{data.inspect}"
+  #puts "Data: #{data.inspect}"
   true
 end
