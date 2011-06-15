@@ -23,3 +23,11 @@ post '/email' do
   #puts "Data: #{data.inspect}"
   true
 end
+
+get '/email' do
+  puts "We got a request, yo!"
+  @params = params
+  puts @params.inspect
+  #puts "Data: #{data.inspect}"
+  true
+end
