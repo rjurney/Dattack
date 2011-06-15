@@ -24,10 +24,10 @@ post '/email' do
   true
 end
 
-get '/email' do
-  puts "We got a GET, yo!"
-  @params = params
-  puts @params.inspect
-  #puts "Data: #{data.inspect}"
-  true
-end
+# get '/email' do
+#   puts "We got a GET, yo!"
+#   @params = params
+#   puts @params.inspect
+#   #puts "Data: #{data.inspect}"
+#   true
+# end
