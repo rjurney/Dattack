@@ -9,6 +9,7 @@ require 'json'
 get '/' do
   puts "Hello, worls!"
   "Hello, world!"
+  
 end
 
 get '/foo'
