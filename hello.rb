@@ -1,7 +1,7 @@
 require 'rubygems'
 require 'sinatra'
 require 'erb'
-require 'json'
+#require 'json'
 
 #require './mailgun'
 #Mailgun::init("key-41q2py_zo0op3evcz7")
@@ -9,7 +9,6 @@ require 'json'
 get '/' do
   puts "Hello, worls!"
   "Hello, world!"
-  
 end
 
 get '/foo'
