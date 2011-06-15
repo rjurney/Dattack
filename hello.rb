@@ -13,7 +13,7 @@ end
 
 get '/foo' do
  @params = 'foo'
- erb :'index.html.erb'
+ erb :index
 end
 
 post '/email/:data' do |data|
