@@ -12,7 +12,7 @@ get '/' do
   "Hello, world!"
 end
 
-post '/email'
+post '/email' do
   puts "ID is: #{params[:subject]}"
   puts "Incoming Email Post: "
   #params.each {|key, value| puts "Key: #{key} Value: #{value}"}
