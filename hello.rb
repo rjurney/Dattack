@@ -12,8 +12,8 @@ get '/' do
   "Hello, world!"
 end
 
-post '/email/:id' do |id|
-  puts "ID is: #{id}"
+post '/email'
+  puts "ID is: #{params[:subject]}"
   puts "Incoming Email Post: "
   #params.each {|key, value| puts "Key: #{key} Value: #{value}"}
   "true"
