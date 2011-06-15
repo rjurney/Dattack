@@ -11,7 +11,7 @@ get '/' do
   "Hello, world!"
 end
 
-get '/foo'
+get '/foo' do
  @params = 'foo'
  erb :'index.html.erb'
 end
