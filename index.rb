@@ -4,6 +4,7 @@ require 'erb'
 require 'json'
 require 'right_aws'
 require 'redis'
+require 'system_timer'
 
 sqs = RightAws::SqsGen2.new(ENV['AWS_ACCESS_KEY_ID'], ENV['AWS_SECRET_ACCESS_KEY'])
 queue = RightAws::SqsGen2::Queue.new(sqs, 'kontexa_test')
