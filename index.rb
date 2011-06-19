@@ -14,8 +14,8 @@ end
 
 post '/email' do
   puts "ID is: #{params[:subject]}"
-  puts "Incoming Email Post: "
-  params.each {|key, value| puts "Key: #{key} Value: #{value}"}
+#  puts "Incoming Email Post: "
+#  params.each {|key, value| puts "Key: #{key} Value: #{value}"}
   
   sqs.put parse_email params
 
