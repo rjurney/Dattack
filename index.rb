@@ -23,7 +23,7 @@ post '/email' do
 end
 
 def parse_email(email)
-  return Hash.new (:received => validate email['Received'],
+  return Hash.new (:received => validate(email['Received']),
                   :message_id => email['Message-Id'],
                   :recipient => email['recipient'],
                   :from => email['from'], 
