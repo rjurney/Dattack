@@ -27,5 +27,5 @@ PLATFORMS
 DEPENDENCIES
   activeresource
   json
-  right_aws
+  right_aws (= 2.1.0)
   sinatra
