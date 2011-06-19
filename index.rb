@@ -5,6 +5,7 @@ require 'json'
 require 'right_aws'
 require 'redis'
 require 'uuid'
+require 'uri'
 
 sqs = RightAws::SqsGen2.new(ENV['AWS_ACCESS_KEY_ID'], ENV['AWS_SECRET_ACCESS_KEY'])
 queue = RightAws::SqsGen2::Queue.new(sqs, 'kontexa_test')
@@ -24,7 +25,7 @@ post '/email' do
   params.each {|key, value| puts "Key: #{key} Value: #{value}"}
   
   uuid = uuid_factory.generate
-  REDIS.put(uuid, JSON(params))
+  REDIS.set(uuid, JSON(params))
   queue.push uuid
 
   "true"
