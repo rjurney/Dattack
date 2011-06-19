@@ -3,7 +3,7 @@ require 'erb'
 require 'json'
 require 'right_aws'
 require 'redis'
-require 'system_timer'
+require 'uuid'
 
 while(1) {
   
