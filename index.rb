@@ -4,10 +4,9 @@ require 'erb'
 require 'json'
 require 'right_aws'
 
-require 'lib/mailgun'
-Mailgun::init("key-41q2py_zo0op3evcz7")
-
-sqs = RightAws::SqsGen2.new(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
+sqs = RightAws::SqsGen2.new(ENV['AWS_ACCESS_KEY_ID'], ENV['AWS_SECRET_ACCESS_KEY'])
+queue = RightAws::SqsGen2::Queue.new(sqs, 'kontexa_test')
+queue.clear() # Dev only!
 
 get '/' do
   " "
@@ -24,16 +23,14 @@ post '/email' do
 end
 
 def parse_email(email)
-  return JSON {
-                :received => email['Received'],
-                :message_id => email['Message-Id'],
-                :recipient => email['recipient'],
-                :from => email['from'], 
-                :to => email['to'], 
-                :sender => email['sender'],
-                :subject => email['subject'], 
-                :body => email['stripped-text'],
-                :'stripped-html' => email['stripped-html'],
-                :'body-plain' => email['body-plain']
-              }
+  return Hash.new (:received => email['Received'],
+                  :message_id => email['Message-Id'],
+                  :recipient => email['recipient'],
+                  :from => email['from'], 
+                  :to => email['to'], 
+                  :sender => email['sender'],
+                  :subject => email['subject'], 
+                  :body => email['stripped-text'],
+                  :'stripped-html' => email['stripped-html'],
+                  :'body-plain' => email['body-plain'] )
 end
