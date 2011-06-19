@@ -24,7 +24,7 @@ post '/email' do
   params.each {|key, value| puts "Key: #{key} Value: #{value}"}
   
   uuid = uuid_factory.generate
-  REDIS.put uuid, JSON(params)
+  REDIS.put(uuid, JSON(params))
   queue.push uuid
 
   "true"
