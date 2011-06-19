@@ -14,16 +14,16 @@ end
 
 post '/email' do
   puts "ID is: #{params[:subject]}"
-#  puts "Incoming Email Post: "
-#  params.each {|key, value| puts "Key: #{key} Value: #{value}"}
+  puts "Incoming Email Post: "
+  params.each {|key, value| puts "Key: #{key} Value: #{value}"}
   
-  queue.send_message parse_email params
+  queue.push parse_email params
 
   "true"
 end
 
 def parse_email(email)
-  return Hash.new (:received => email['Received'],
+  return Hash.new (:received => validate email['Received'],
                   :message_id => email['Message-Id'],
                   :recipient => email['recipient'],
                   :from => email['from'], 
@@ -33,4 +33,9 @@ def parse_email(email)
                   :body => email['stripped-text'],
                   :'stripped-html' => email['stripped-html'],
                   :'body-plain' => email['body-plain'] )
+end
+
+def validate(field)
+  return field if field
+  undef
 end
