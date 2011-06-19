@@ -8,7 +8,7 @@ require 'lib/mailgun'
 Mailgun::init("key-41q2py_zo0op3evcz7")
 
 get '/' do
-  ""
+  " "
 end
 
 post '/email' do
