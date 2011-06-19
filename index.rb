@@ -2,6 +2,7 @@ require 'rubygems'
 require 'sinatra'
 require 'erb'
 require 'json'
+require 'right_aws'
 
 require 'lib/mailgun'
 Mailgun::init("key-41q2py_zo0op3evcz7")
