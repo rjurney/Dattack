@@ -17,7 +17,7 @@ post '/email' do
 #  puts "Incoming Email Post: "
 #  params.each {|key, value| puts "Key: #{key} Value: #{value}"}
   
-  sqs.put parse_email params
+  sqs.push parse_email params
 
   "true"
 end
