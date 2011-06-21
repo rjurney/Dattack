@@ -8,6 +8,7 @@ gem 'system_timer'
 gem 'uuid'
 gem 'voldemort-rb'
 gem 'memcache'
+gem 'tmail'
 
 platforms :jruby do
   gem 'pacer'

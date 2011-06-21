@@ -9,16 +9,19 @@ def split_addresses(addy_string)
 end
 
 def strip_address(address)
-  address.gsub("\n|\r|\"|\'", "")
+  address.gsub("\n|\r|\"|\'", "").downcase
 end
 
 # Extract the email part of the Name/email, i.e.: Russell Jurney <russell.jurney@gmail.com>
 def extract_email(address)
-  match = address.match /.*<(.*)>.*/
-  if match
-    return match[1]
+  if address =~ /<.+>/
+    match = address.match /.*<(.*)>.*/
+    if match
+      return match[1].downcase
+    end
+  else
+    address.downcase
   end
-  nil
 end
 
 # Build a hash of all the names associated with an email, and all emails associated with a name.
