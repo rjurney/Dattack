@@ -7,6 +7,7 @@ require 'uuid'
 require 'uri'
 require 'pacer'
 require 'lib/graph_client'
+require 'lib/graph_helper'
 require 'data/email'
 
 SQS = RightAws::SqsGen2.new(ENV['AWS_ACCESS_KEY_ID'], ENV['AWS_SECRET_ACCESS_KEY'])
@@ -30,21 +31,21 @@ while(1) do
     
     parsed['From'] = extract_email strip_address email['From']
     from = nil
-    # if graph.v(:address =>  email['From']).empty?
-    #   from = graph.create_vertex(:type => 'email', :address => email['From'])
-    # else
-    #   from = graph.v(:address =>  email['From'])
-    # end
+    if graph.v(:address =>  email['From']).empty?
+      from = graph.create_vertex(:type => 'email', :address => email['From'])
+    else
+      from = graph.v(:address =>  email['From'])
+    end
     
     parsed['To'] = split_addresses(email['To'])
     parsed['To'].each do |to| 
       puts "#{extract_email parsed['From']} --> #{extract_email to}"
       to = nil
-      # if graph.v(:address =>  email['To']).empty?
-      #   to = graph.create_vertex(:type => 'email', :address => email['To'])
-      # else
-      #   to = graph.v(:address =>  email['To'])
-      # end
+      if graph.v(:address =>  email['To']).empty?
+        to = graph.create_vertex(:type => 'email', :address => email['To'])
+      else
+        to = graph.v(:address =>  email['To'])
+      end
       # Must increment if not already there graph.create_edge nil, from, to, :sent, {}
     end
     

@@ -8,6 +8,7 @@ require 'rubygems'
 require 'voldemort-rb'
 require 'memcache'
 require 'pacer'
+require 'graph_helper'
 
 class GraphClient
 	attr_reader :voldemort, :memcache, :raw
