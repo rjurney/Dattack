@@ -8,7 +8,6 @@ require 'rubygems'
 require 'voldemort-rb'
 require 'memcache'
 require 'pacer'
-require 'graph_helper'
 
 class GraphClient
 	attr_reader :voldemort, :memcache, :raw
@@ -21,11 +20,11 @@ class GraphClient
 		@raw = true
 	end
 	
-	def get_object(key)
+	def get_graph_object(key)
 		return_graph get key
 	end
 	
-	def get(key)
+	def get_graph(key)
 		graph = nil
 		begin
 			graph = return_graph @memcache.get key, @raw
@@ -45,11 +44,11 @@ class GraphClient
 		graph
 	end
 	
-	def get_json(key)
+	def get_graph_json(key)
 		@voldemort.get key
 	end
 	
-	def set(key, value)
+	def set_graph(key, value)
 		@voldemort.put key, value.to_json
 		@memcache.set key, value, 0, @raw
 	end
