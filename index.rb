@@ -7,6 +7,10 @@ require 'redis'
 require 'uuid'
 require 'uri'
 
+# export VOLDEMORT_STORE="kontexa"
+# export VOLDEMORT_ADDRESS="localhost:6666"
+# export MEMCACHED_ADDRESS="localhost:11211"
+
 sqs = RightAws::SqsGen2.new(ENV['AWS_ACCESS_KEY_ID'], ENV['AWS_SECRET_ACCESS_KEY'])
 queue = RightAws::SqsGen2::Queue.new(sqs, 'kontexa_test')
 queue.clear() # Dev only!
@@ -20,13 +24,12 @@ get '/' do
   " "
 end
 
-post '/email' do
-  puts "Incoming Email Post:"
-  params.each {|key, value| puts "Key: #{key} Value: #{value}"}
-  
+post '/email' do  
   uuid = uuid_factory.generate
+  puts "UUID: #{uuid}"
   REDIS.set(uuid, JSON(params))
+  
+  # Need to put the identity of the user of the service here, reliably, somehow, appended to the uuid?
   queue.push uuid
-
   "true"
 end
