@@ -30,6 +30,7 @@ count = 0
 while(count < 100) do
   # Trap ctrl-c 
   if interrupted
+    system 'rm /tmp/email.graphml'
     graph.export '/tmp/email.graphml'
     exit
   end
@@ -47,23 +48,29 @@ while(count < 100) do
     
     to_addresses = split_addresses(email['To'])
     to_addresses.each do |to_address| 
-      email = extract_email to_address
+      email = extract_email strip_address to_address
       to = graph.find_or_create_vertex({:type => 'email', :address => email}, :type)
       graph.find_or_increment_edge(from, to, 'sent', 'volume', 1)
-      puts "#{from_address} --> #{to_address}"
+      puts "#{from_address} --> #{email}"
     end
     
     if email['Cc']
       cc_addresses = split_addresses(email['Cc'])
       cc_addresses.each do |cc_address| 
-        email = extract_email cc_address
+        email = extract_email strip_address cc_address
         cc = find_or_create_vertex({:type => 'email', :address => email}, :type)
         graph.find_or_increment_edge(from, cc, 'sent', 'volume', 1)
-        puts "#{from_address} --> #{cc_address}"
+        puts "#{from_address} --> #{email}"
       end
     end
 
     REDIS.set uuid, nil
+    if (count % 10) == 0
+      system 'rm /tmp/email.graphml'
+      graph.export '/tmp/email.graphml'
+    end
   end
+  
+  count += 1
   sleep 1
 end
