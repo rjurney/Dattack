@@ -1,9 +1,11 @@
 def split_addresses(addy_string)
-  addy_string = strip_address addy_string
-  addresses = addy_string.split ","
   final = []
-  addresses.each do |addy|
-    final << addy.squeeze(" ").strip
+  if addy_string and addy_string.is_a? String
+    addy_string = strip_address addy_string
+    addresses = addy_string.split ","
+    addresses.each do |addy|
+      final << addy.squeeze(" ").strip
+    end
   end
   final
 end
