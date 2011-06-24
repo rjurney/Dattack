@@ -35,6 +35,10 @@ class GraphClient
 		@voldemort.put key, value
 	end
 	
+	def delete(key)
+	  @voldemort.delete key
+	end
+	
 	def return_graph(input)
 		if input.is_a? EmailGraph
 			return input
