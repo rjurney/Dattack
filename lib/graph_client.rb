@@ -8,6 +8,7 @@ require 'rubygems'
 require 'voldemort-rb'
 require 'memcache'
 require 'pacer'
+require 'lib/email_graph'
 
 class GraphClient
 	attr_reader :voldemort, :memcache, :raw
@@ -15,49 +16,30 @@ class GraphClient
 	def initialize(voldemort_store, voldemort_address, memcache_address)
 		# Connections settable in environment.rb
 		@voldemort = VoldemortClient.new voldemort_store, voldemort_address
-		@memcache = MemCache.new memcache_address
-		@memcache.flush_all
 		@raw = true
 	end
 	
-	def get_graph_object(key)
-		return_graph get key
+	def get(key)
+		graph = return_graph get_json key
 	end
 	
-	def get_graph(key)
-		graph = nil
-		begin
-			graph = return_graph @memcache.get key, @raw
-		rescue
-			graph = nil
-		end
-		
-		if graph.nil?
-			begin
-				graph = return_graph @voldemort.get key
-				if not graph.nil?
-					@memcache.set key, graph, 0, true
-				end
-			rescue
-			end
-		end
-		graph
-	end
-	
-	def get_graph_json(key)
+	def get_json(key)
 		@voldemort.get key
 	end
 	
-	def set_graph(key, value)
-		@voldemort.put key, value.to_json
-		@memcache.set key, value, 0, @raw
+	def set(key, graph)
+	  set_json key, graph.to_json
+	end
+	
+	def set_json(key, value)
+		@voldemort.put key, value
 	end
 	
 	def return_graph(input)
-		if input.is_a? Java::ComTinkerpopBlueprintsPgmImplsTg::TinkerGraph
+		if input.is_a? EmailGraph
 			return input
 		else
-			graph = Pacer.tg
+			graph = EmailGraph.new
 			graph.from_json! input
 			return graph
 		end

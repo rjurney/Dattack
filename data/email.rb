@@ -1,17 +1,24 @@
+require 'tmail'
+
 def split_addresses(addy_string)
   final = []
   if addy_string and addy_string.is_a? String
-    addy_string = strip_address addy_string
-    addresses = addy_string.split ","
+    addresses = addy_string.split ",\s"
     addresses.each do |addy|
-      final << addy.squeeze(" ").strip
+      final << strip_address(addy)
     end
   end
   final
 end
 
 def strip_address(address)
-  address.gsub("\n|\r|\"|\'", "").downcase
+  begin
+    mail = TMail::Address.parse address #.gsub("\n|\r|\"|\'|", "").downcase
+  rescue TMail::SyntaxError
+    puts("Invalid Email Address Detected: #{address}")
+  else
+    mail.address
+  end
 end
 
 # Extract the email part of the Name/email, i.e.: Russell Jurney <russell.jurney@gmail.com>

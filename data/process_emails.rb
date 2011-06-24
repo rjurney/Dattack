@@ -6,6 +6,7 @@ require 'redis'
 require 'uuid'
 require 'uri'
 require 'pacer'
+require 'tmail'
 require 'lib/graph_client'
 require 'data/email'
 require 'lib/email_graph'
@@ -32,6 +33,7 @@ while(count < 100) do
   if interrupted
     system 'rm /tmp/email.graphml'
     graph.export '/tmp/email.graphml'
+    GRAPH_CLIENT.set_graph "russell.jurney@gmail.com", graph.to_json
     exit
   end
     
@@ -43,12 +45,12 @@ while(count < 100) do
     vertices = {}
     
     # Update the graph with this new email information.
-    from_address = extract_email strip_address email['From']
+    from_address = strip_address email['From']
     from = graph.find_or_create_vertex({:type => 'email', :address => from_address}, :type)
     
     to_addresses = split_addresses(email['To'])
     to_addresses.each do |to_address| 
-      email = extract_email strip_address to_address
+      email = strip_address to_address
       to = graph.find_or_create_vertex({:type => 'email', :address => email}, :type)
       graph.find_or_increment_edge(from, to, 'sent', 'volume', 1)
       puts "#{from_address} --> #{email}"
@@ -57,7 +59,7 @@ while(count < 100) do
     if email['Cc']
       cc_addresses = split_addresses(email['Cc'])
       cc_addresses.each do |cc_address| 
-        email = extract_email strip_address cc_address
+        email = strip_address cc_address
         cc = find_or_create_vertex({:type => 'email', :address => email}, :type)
         graph.find_or_increment_edge(from, cc, 'sent', 'volume', 1)
         puts "#{from_address} --> #{email}"
@@ -68,9 +70,10 @@ while(count < 100) do
     if (count % 10) == 0
       system 'rm /tmp/email.graphml'
       graph.export '/tmp/email.graphml'
+      GRAPH_CLIENT.set_graph "russell.jurney@gmail.com", graph
     end
+    count += 1
   end
   
-  count += 1
   sleep 1
 end
