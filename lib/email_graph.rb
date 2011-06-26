@@ -18,17 +18,23 @@ class EmailGraph < Pacer::TinkerGraph
   #
   # Example Usage: graph.find_or_increment_edge from, cc, :sent, {volume => 1}
   #
-  def find_or_increment_edge(from, to, type, key, amount)
+  def find_or_create_edge(from, to, label, unique_field, unique_value)
     # Does the edge exist?
-    edge = from.out_e type
-    edge &&= edge.first
+    edges = from.out_e label
     
-    if edge.nil?
-      self.create_edge nil, from, to, type, {key.to_s => amount}
-    # If so, increment the field
-    else
-      edge[key.to_s] += amount
-      edge
+    found = false
+    edges.each do |edge|
+      # If not, create and return it
+      if (edge.nil?) || (edge[unique_field] != unique_value)
+      # If so, return the existing edge
+      else
+        return edge
+      end
+    end
+    
+    # Create it if no match for the edge label and 
+    if ! found
+      edge = self.create_edge(nil, from, to, label, {unique_field.to_s => unique_value})
     end
   end
 end

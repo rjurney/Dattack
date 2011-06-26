@@ -15,9 +15,9 @@ SQS = RightAws::SqsGen2.new(ENV['AWS_ACCESS_KEY_ID'], ENV['AWS_SECRET_ACCESS_KEY
 queue = RightAws::SqsGen2::Queue.new(SQS, 'kontexa_test')
 
 redis_uri = URI.parse(ENV["REDISTOGO_URL"])
-REDIS = Redis.new(:host => redis_uri.host, :port => redis_uri.port, :password => redis_uri.password)
+redis = Redis.new(:host => redis_uri.host, :port => redis_uri.port, :password => redis_uri.password)
 
-GRAPH_CLIENT = GraphClient.new ENV['VOLDEMORT_STORE'], ENV['VOLDEMORT_ADDRESS'], ENV['MEMCACHED_ADDRESS']
+graph_client = GraphClient.new ENV['VOLDEMORT_STORE'], ENV['VOLDEMORT_ADDRESS'], ENV['MEMCACHED_ADDRESS']
 graph = EmailGraph.new
 
 interrupted = false
@@ -33,13 +33,13 @@ while(count < 100) do
   if interrupted
     system 'rm /tmp/email.graphml'
     graph.export '/tmp/email.graphml'
-    GRAPH_CLIENT.set_graph "russell.jurney@gmail.com", graph.to_json
+    graph_client.set "russell.jurney@gmail.com", graph.to_json
     exit
   end
     
   uuid = queue.pop
   if uuid and uuid.body
-    json = REDIS.get uuid.body
+    json = redis.get uuid.body
     email = JSON.parse json
     
     vertices = {}
@@ -66,11 +66,12 @@ while(count < 100) do
       end
     end
 
-    REDIS.set uuid, nil
+    redis.set uuid, nil
     if (count % 10) == 0
+      puts "Saving!"
       system 'rm /tmp/email.graphml'
       graph.export '/tmp/email.graphml'
-      GRAPH_CLIENT.set_graph "russell.jurney@gmail.com", graph
+      graph_client.set "russell.jurney@gmail.com", graph
     end
     count += 1
   end
