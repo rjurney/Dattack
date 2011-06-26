@@ -40,10 +40,13 @@ class GraphClient
 	end
 	
 	def return_graph(input)
-		if input.is_a? EmailGraph
+	  if input.nil? or input.empty?
+	    return nil
+		elsif input.is_a? EmailGraph
 			return input
 		else
 			graph = EmailGraph.new
+			puts "Input: #{input}"
 			graph.from_json! input
 			return graph
 		end

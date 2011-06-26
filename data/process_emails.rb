@@ -11,6 +11,8 @@ require 'lib/graph_client'
 require 'data/email'
 require 'lib/email_graph'
 
+user_name = "russell.jurney@gmail.com"
+
 SQS = RightAws::SqsGen2.new(ENV['AWS_ACCESS_KEY_ID'], ENV['AWS_SECRET_ACCESS_KEY'])
 queue = RightAws::SqsGen2::Queue.new(SQS, 'kontexa_test')
 
@@ -19,6 +21,10 @@ redis = Redis.new(:host => redis_uri.host, :port => redis_uri.port, :password =>
 
 graph_client = GraphClient.new ENV['VOLDEMORT_STORE'], ENV['VOLDEMORT_ADDRESS'], ENV['MEMCACHED_ADDRESS']
 graph = EmailGraph.new
+restart_json = graph_client.get user_name
+if restart_json
+  graph.from_json!
+end
 
 interrupted = false
 
@@ -28,18 +34,19 @@ system 'rm /tmp/email.graphml'
 
 count = 0
 
-while(count < 100) do
+while(true) do
   # Trap ctrl-c 
   if interrupted
     system 'rm /tmp/email.graphml'
     graph.export '/tmp/email.graphml'
-    graph_client.set "russell.jurney@gmail.com", graph.to_json
+    graph_client.set user_name, graph.to_json
     exit
   end
     
   uuid = queue.pop
   if uuid and uuid.body
     json = redis.get uuid.body
+    puts json
     email = JSON.parse json
     
     # Update the graph with this new email information.
@@ -57,6 +64,7 @@ while(count < 100) do
       edge.properties = props
     end
     
+    puts "email['Cc'] field is: #{email['Cc']} | #{email['cc']}"
     if email['Cc']
       cc_addresses = split_addresses(email['Cc'])
       cc_addresses.each do |cc_address|        
@@ -73,7 +81,7 @@ while(count < 100) do
     redis.set uuid, nil
     if (count % 10) == 0
       puts "Saving!"
-      system 'rm /tmp/email.graphml'
+      system 'rm -f /tmp/email.graphml'
       graph.export '/tmp/email.graphml'
       graph_client.set "russell.jurney@gmail.com", graph
     end
