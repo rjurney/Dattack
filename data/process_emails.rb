@@ -52,7 +52,7 @@ while(count < 100) do
     to_addresses.each do |to_address| 
       email = strip_address to_address
       to = graph.find_or_create_vertex({:type => 'email', :address => email}, :type)
-      graph.find_or_increment_edge(from, to, 'sent', 'volume', 1)
+      graph.find_or_create_edge(from, to, 'sent', 'volume', 1)
       puts "#{from_address} --> #{email}"
     end
     
@@ -61,7 +61,7 @@ while(count < 100) do
       cc_addresses.each do |cc_address| 
         email = strip_address cc_address
         cc = find_or_create_vertex({:type => 'email', :address => email}, :type)
-        graph.find_or_increment_edge(from, cc, 'sent', 'volume', 1)
+        graph.find_or_create_edge(from, cc, 'sent', 'volume', 1)
         puts "#{from_address} --> #{email}"
       end
     end

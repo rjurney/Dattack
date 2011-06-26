@@ -34,27 +34,19 @@ describe EmailGraph, "#find_or_create_edge" do
   edge2 = nil
   
   it "should create a new edge when none is present" do
-    edge1 = graph.find_or_create_edge(from, to, 'sent', 'volume', 1)
+    edge1 = graph.find_or_create_edge(from, to, 'sent')
     edge1.out_v.first.should === from
     edge1.in_v.first.should === to
-    edge1['volume'].should === 1
   end
   
-  it "should increment the value of the key in an existing edge" do
-    edge2 = graph.find_or_create_edge(from, to, 'sent', 'volume', 4)
-    edge2['volume'].should === 4
+  it "different edge labels should not duplicate the previously created edge" do
+    edge2 = graph.find_or_create_edge(from, to, 'received')
     edge2.should_not === edge1
   end
   
-  it "should increment again" do
-    edge3 = graph.find_or_create_edge(from, to, 'sent', 'volume', 4)
-    edge3['volume'].should === 4
-    edge3.should_not === edge1
-    edge3.should == edge2
-  end
-  
-  it "should create another independant edge after the first one" do
-    edge4 = graph.find_or_create_edge(to, from, 'sent', 'volume', 2)
-    edge4['volume'].should === 2
+  it "should return an existing edge" do
+    edge3 = graph.find_or_create_edge(from, to, 'sent')
+    edge3.should === edge1
+    edge3.should_not == edge2
   end
 end
