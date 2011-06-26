@@ -49,20 +49,28 @@ while(count < 100) do
     from = graph.find_or_create_vertex({:type => 'email', :address => from_address}, :type)
     
     to_addresses = split_addresses(email['To'])
-    to_addresses.each do |to_address| 
+    to_addresses.each do |to_address|
+      puts "#{from_address} --> #{email}"
+      
       email = strip_address to_address
       to = graph.find_or_create_vertex({:type => 'email', :address => email}, :type)
-      graph.find_or_create_edge(from, to, 'sent', 'volume', 1)
-      puts "#{from_address} --> #{email}"
+      edge = graph.find_or_create_edge(from, to, 'sent')
+      props = edge.properties
+      props.merge { 'volume' => (props['volume'] + 1) }
+      edge.properties = props
     end
     
     if email['Cc']
       cc_addresses = split_addresses(email['Cc'])
-      cc_addresses.each do |cc_address| 
+      cc_addresses.each do |cc_address|
+        puts "#{from_address} --> #{email}"
+        
         email = strip_address cc_address
         cc = find_or_create_vertex({:type => 'email', :address => email}, :type)
-        graph.find_or_create_edge(from, cc, 'sent', 'volume', 1)
-        puts "#{from_address} --> #{email}"
+        edge = graph.find_or_create_edge(from, cc, 'sent')
+        props = edge.properties
+        props.merge { 'volume' => (props['volume'] + 1) }
+        edge.properties = props
       end
     end
 
