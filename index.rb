@@ -28,6 +28,9 @@ post '/email' do
   uuid = uuid_factory.generate
   puts "UUID: #{uuid}"
   REDIS.set(uuid, JSON(params))
+  ['From', 'To', 'Cc', 'Sender', 'subject', 'stripped-html'].each do |key, value|
+    puts "###{key}##  #{value}"
+  end
   
   # Need to put the identity of the user of the service here, reliably, somehow, appended to the uuid?
   queue.push uuid
