@@ -45,7 +45,6 @@ class GraphClient
 			return input
 		else
 			graph = EmailGraph.new
-			puts "Input: #{input}"
 			graph.from_json! input
 			return graph
 		end

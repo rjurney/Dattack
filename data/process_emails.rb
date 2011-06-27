@@ -22,7 +22,7 @@ redis = Redis.new(:host => redis_uri.host, :port => redis_uri.port, :password =>
 graph_client = GraphClient.new ENV['VOLDEMORT_STORE'], ENV['VOLDEMORT_ADDRESS'], ENV['MEMCACHED_ADDRESS']
 graph = EmailGraph.new
 restart_json = graph_client.get user_name
-if restart_json
+if restart_json and ! restart_json.empty?
   graph.from_json!
 end
 
@@ -84,7 +84,8 @@ while(true) do
       puts "Saving!"
       system 'rm -f /tmp/email.graphml'
       graph.export '/tmp/email.graphml'
-      graph_client.set "russell.jurney@gmail.com", graph
+      puts graph
+      graph_client.set "russell.jurney@gmail.com", graph.to_s
     end
     count += 1
   end

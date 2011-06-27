@@ -13,7 +13,7 @@ end
 
 def strip_address(address)
   begin
-    mail = TMail::Address.parse address #.gsub("\n|\r|\"|\'|", "").downcase
+    mail = TMail::Address.parse address
   rescue TMail::SyntaxError
     puts("Invalid Email Address Detected: #{address}")
   else
