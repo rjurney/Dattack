@@ -6,7 +6,6 @@
 
 require 'rubygems'
 require 'voldemort-rb'
-require 'memcache'
 require 'pacer'
 require 'lib/email_graph'
 

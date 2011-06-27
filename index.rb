@@ -28,7 +28,7 @@ post '/email' do
   uuid = uuid_factory.generate
   puts "UUID: #{uuid}"
   json = JSON.generate(params)
-  puts "###JSON### #{json}"
+  #puts "###JSON### #{json}"
   REDIS.set(uuid, json)
   ['From', 'To', 'Cc', 'sender', 'subject', 'body-plain'].each do |key|
     puts "###{key}##  #{params[key]}"
