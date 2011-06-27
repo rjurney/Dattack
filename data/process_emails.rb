@@ -78,7 +78,8 @@ while(true) do
       end
     end
 
-    redis.set uuid, nil
+    # For now - for debug, I am not removing emails from redis
+    #redis.set uuid, nil
     if (count % 10) == 0
       puts "Saving!"
       system 'rm -f /tmp/email.graphml'
