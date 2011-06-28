@@ -35,6 +35,7 @@ count = 0
 while(true) do
   # Trap ctrl-c 
   if interrupted
+    puts "Saving..."
     system 'rm /tmp/email.graphml'
     graph.export '/tmp/email.graphml'
     graph_client.set user_name, graph
@@ -57,7 +58,7 @@ while(true) do
     to_addresses = split_addresses(email['To'])
     to_addresses.each do |to_address|
       email_addy = strip_address to_address
-        puts "#{from_address} --> #{email_addy}"
+        puts "#{from_address} --> #{email_addy} [To]"
       to = graph.find_or_create_vertex({:type => 'email', :address => email_addy}, :address)
       edge = graph.find_or_create_edge(from, to, 'sent')
       props = edge.properties || {}
@@ -65,12 +66,12 @@ while(true) do
       edge.properties = props
     end
     
-    puts "email['Cc'] field is: #{email['Cc']} | #{email['cc']}"
+    #puts "email['Cc'] field is: #{email['Cc']} | #{email['cc']}"
     if email['Cc']
       cc_addresses = split_addresses(email['Cc'])
       cc_addresses.each do |cc_address|        
         email_addy = strip_address cc_address
-          puts "#{from_address} --> #{email_addy}"
+          puts "#{from_address} --> #{email_addy} [Cc]"
         cc = graph.find_or_create_vertex({:type => 'email', :address => email_addy}, :address)
         edge = graph.find_or_create_edge(from, cc, 'sent')
         props = edge.properties || {}
@@ -82,7 +83,7 @@ while(true) do
     # For now - for debug, I am not removing emails from redis
     redis.set uuid, nil
     if (count % 10) == 0
-      puts "Saving!"
+      puts "Saving..."
       system 'rm -f /tmp/email.graphml'
       graph.export '/tmp/email.graphml'
       puts graph
