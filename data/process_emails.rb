@@ -21,10 +21,8 @@ redis = Redis.new(:host => redis_uri.host, :port => redis_uri.port, :password =>
 
 graph_client = GraphClient.new ENV['VOLDEMORT_STORE'], ENV['VOLDEMORT_ADDRESS'], ENV['MEMCACHED_ADDRESS']
 graph = EmailGraph.new
-restart_json = graph_client.get user_name
-if restart_json and ! restart_json.empty?
-  graph.from_json!
-end
+
+(tmp_graph = graph_client.get user_name).nil? ? graph : graph = tmp_graph
 
 interrupted = false
 
@@ -39,15 +37,18 @@ while(true) do
   if interrupted
     system 'rm /tmp/email.graphml'
     graph.export '/tmp/email.graphml'
-    graph_client.set user_name, graph.to_json
+    graph_client.set user_name, graph
     exit
   end
     
   uuid = queue.pop
   if uuid and uuid.body
     json = redis.get uuid.body
-    puts json
-    email = JSON.parse json
+    begin
+      email = JSON.parse json
+    rescue
+      next
+    end
     
     # Update the graph with this new email information.
     from_address = strip_address email['From']
@@ -55,12 +56,12 @@ while(true) do
     
     to_addresses = split_addresses(email['To'])
     to_addresses.each do |to_address|
-      email = strip_address to_address
-        puts "#{from_address} --> #{email}"
-      to = graph.find_or_create_vertex({:type => 'email', :address => email}, :address)
+      email_addy = strip_address to_address
+        puts "#{from_address} --> #{email_addy}"
+      to = graph.find_or_create_vertex({:type => 'email', :address => email_addy}, :address)
       edge = graph.find_or_create_edge(from, to, 'sent')
       props = edge.properties || {}
-      props.merge!({ 'volume' => ((props['volume'] || 0) + 1) })
+      props.merge!({ 'volume' => ((props['volume'].to_i || 0) + 1).to_s })
       edge.properties = props
     end
     
@@ -68,12 +69,12 @@ while(true) do
     if email['Cc']
       cc_addresses = split_addresses(email['Cc'])
       cc_addresses.each do |cc_address|        
-        email = strip_address cc_address
-          puts "#{from_address} --> #{email}"
-        cc = find_or_create_vertex({:type => 'email', :address => email}, :address)
+        email_addy = strip_address cc_address
+          puts "#{from_address} --> #{email_addy}"
+        cc = graph.find_or_create_vertex({:type => 'email', :address => email_addy}, :address)
         edge = graph.find_or_create_edge(from, cc, 'sent')
         props = edge.properties || {}
-        props.merge!({ 'volume' => ((props['volume'] || 0) + 1) })
+        props.merge!({ 'volume' => ((props['volume'].to_i || 0) + 1).to_s })
         edge.properties = props
       end
     end
@@ -85,7 +86,7 @@ while(true) do
       system 'rm -f /tmp/email.graphml'
       graph.export '/tmp/email.graphml'
       puts graph
-      graph_client.set "russell.jurney@gmail.com", graph.to_s
+      graph_client.set "russell.jurney@gmail.com", graph
     end
     count += 1
   end
