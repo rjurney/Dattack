@@ -5,6 +5,7 @@ require 'json'
 require 'uri'
 require 'data/email'
 require 'lib/graph_client'
+require 'lib/email_graph'
 
 PREFIX = "historic:"
 USERNAME = "russell.jurney@gmail.com"
@@ -20,7 +21,7 @@ hist_graph = EmailGraph.new
 interrupted = false
 trap("SIGINT") { interrupted = true }
 
-count = 0
+count = 1
 
 # Account setup
 imap = Net::IMAP.new('imap.gmail.com',993,true)
@@ -28,7 +29,7 @@ imap.login(USERNAME, ENV['GMAILPASS'])
 
 # First check the OUTBOX
 
-('[Gmail]/Sent Mail', 'INBOX').each do |folder|
+['[Gmail]/Sent Mail', 'INBOX'].each do |folder|
   imap.examine(folder) # examine is read only
   imap.search(['ALL']).each do |message_id|
   
@@ -55,15 +56,15 @@ imap.login(USERNAME, ENV['GMAILPASS'])
         props = edge.properties || {}
         props.merge!({ 'volume' => ((props['volume'].to_i || 0) + 1).to_s })
         edge.properties = props
-
+        puts edge.to_json
         puts "#{t_from.address} --> #{t_to.address} [to]"
       end
   
       if mail.header['cc']
         cc_addresses = mail.header['cc'].addrs
         cc_addresses.each do |t_cc|
-          cc = graph.find_or_create_vertex({:type => 'email', :address => t_cc.address}, :address)
-          edge = graph.find_or_create_edge(from, cc, 'sent')
+          cc = hist_graph.find_or_create_vertex({:type => 'email', :address => t_cc.address}, :address)
+          edge = hist_graph.find_or_create_edge(from, cc, 'sent')
           props = edge.properties || {}
           props.merge!({ 'volume' => ((props['volume'].to_i || 0) + 1).to_s })
           edge.properties = props
@@ -75,8 +76,8 @@ imap.login(USERNAME, ENV['GMAILPASS'])
       if mail.header['bcc']
         bcc_addresses = mail.header['bcc'].addrs
         bcc_addresses.each do |t_bcc|
-          bcc = graph.find_or_create_vertex({:type => 'email', :address => t_bcc.address}, :address)
-          edge = graph.find_or_create_edge(from, bcc, 'sent')
+          bcc = hist_graph.find_or_create_vertex({:type => 'email', :address => t_bcc.address}, :address)
+          edge = hist_graph.find_or_create_edge(from, bcc, 'sent')
           props = edge.properties || {}
           props.merge!({ 'volume' => ((props['volume'].to_i || 0) + 1).to_s })
           edge.properties = props          

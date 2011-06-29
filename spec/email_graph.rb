@@ -27,11 +27,14 @@ describe EmailGraph, "#find_or_create_edge" do
   graph = EmailGraph.new
   properties1 = {:type => 'email', :address => 'russell.jurney@gmail.com'}
   properties2 = {:type => 'email', :address => 'kate.jurney@gmail.com'}
+  properties3 = {:type => 'email', :address => 'jurney@gmail.com'}
   
   from = graph.create_vertex properties1
   to = graph.create_vertex properties2
+  other = graph.create_vertex properties3
   edge1 = nil
   edge2 = nil
+  edge3 = nil
   
   it "should create a new edge when none is present" do
     edge1 = graph.find_or_create_edge(from, to, 'sent')
@@ -46,7 +49,9 @@ describe EmailGraph, "#find_or_create_edge" do
   
   it "should return an existing edge" do
     edge3 = graph.find_or_create_edge(from, to, 'sent')
-    edge3.should === edge1
+    puts edge3.to_json
+    puts edge1.to_json
+    (edge3.eql? edge1).should == true
     edge3.should_not == edge2
   end
 end

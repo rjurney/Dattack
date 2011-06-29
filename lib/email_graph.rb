@@ -21,12 +21,21 @@ class EmailGraph < Pacer::TinkerGraph
   def find_or_create_edge(from, to, label)
     # Does the edge exist?
     edge = from.out_e label
-    edge &&= edge.first
+    puts "found edges: #{edge.count}"
     
-    if edge.nil?
-      edge = self.create_edge(nil, from, to, label)
-    else
-      return edge
+    found_edge = nil
+    if edge
+      edge.each do |e|
+        if e and e.in_v
+          e.in_v.each do |inv| 
+            if inv.equals? to
+              return e
+            end
+          end
+        end
+      end
     end
+    e = self.create_edge(nil, from, to, label)
   end
+
 end
