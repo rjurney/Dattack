@@ -21,7 +21,6 @@ class EmailGraph < Pacer::TinkerGraph
   def find_or_create_edge(from, to, label)
     # Does the edge exist?
     edge = from.out_e label
-    puts "found edges: #{edge.count}"
     
     found_edge = nil
     if edge
