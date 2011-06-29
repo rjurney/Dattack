@@ -55,31 +55,38 @@ while(true) do
     from_address = strip_address email['From']
     from = graph.find_or_create_vertex({:type => 'email', :address => from_address}, :address)
     
-    to_addresses = split_addresses(email['To'])
-    to_addresses.each do |to_address|
-      email_addy = strip_address to_address
-        puts "#{from_address} --> #{email_addy} [To]"
-      to = graph.find_or_create_vertex({:type => 'email', :address => email_addy}, :address)
-      edge = graph.find_or_create_edge(from, to, 'sent')
-      props = edge.properties || {}
-      props.merge!({ 'volume' => ((props['volume'].to_i || 0) + 1).to_s })
-      edge.properties = props
-    end
-    
-    #puts "email['Cc'] field is: #{email['Cc']} | #{email['cc']}"
-    if email['Cc']
-      cc_addresses = split_addresses(email['Cc'])
-      cc_addresses.each do |cc_address|        
-        email_addy = strip_address cc_address
-          puts "#{from_address} --> #{email_addy} [Cc]"
-        cc = graph.find_or_create_vertex({:type => 'email', :address => email_addy}, :address)
-        edge = graph.find_or_create_edge(from, cc, 'sent')
+    begin
+      to_addresses = split_addresses(email['To'])
+      to_addresses.each do |to_address|
+        email_addy = strip_address to_address
+          puts "#{from_address} --> #{email_addy} [To]"
+        to = graph.find_or_create_vertex({:type => 'email', :address => email_addy}, :address)
+        edge = graph.find_or_create_edge(from, to, 'sent')
         props = edge.properties || {}
         props.merge!({ 'volume' => ((props['volume'].to_i || 0) + 1).to_s })
         edge.properties = props
       end
+    rescue
+      puts "Problem parsing address: #{to_addresses.to_s}"
     end
-
+    
+    begin
+      if email['Cc']
+        cc_addresses = split_addresses(email['Cc'])
+        cc_addresses.each do |cc_address|        
+          email_addy = strip_address cc_address
+            puts "#{from_address} --> #{email_addy} [Cc]"
+          cc = graph.find_or_create_vertex({:type => 'email', :address => email_addy}, :address)
+          edge = graph.find_or_create_edge(from, cc, 'sent')
+          props = edge.properties || {}
+          props.merge!({ 'volume' => ((props['volume'].to_i || 0) + 1).to_s })
+          edge.properties = props
+        end
+      end
+    rescue
+      puts "Problem parsing address: #{cc_addresses.to_s}"
+    end
+    
     # For now - for debug, I am not removing emails from redis
     redis.set uuid, nil
     if (count % 10) == 0
