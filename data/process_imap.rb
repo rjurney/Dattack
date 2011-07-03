@@ -27,9 +27,13 @@ count = 1
 imap = Net::IMAP.new('imap.gmail.com',993,true)
 imap.login(USERNAME, ENV['GMAILPASS'])
 
+skipped_ids = {}
+
 # First check the OUTBOX
 
-['[Gmail]/Sent Mail', 'INBOX'].each do |folder|
+['INBOX','[Gmail]/Sent Mail'].each do |folder|
+  skipped_ids[folder] = []
+  
   imap.examine(folder) # examine is read only
   imap.search(['ALL']).each do |message_id|
   
@@ -42,57 +46,70 @@ imap.login(USERNAME, ENV['GMAILPASS'])
       exit
     end
   
-    msg = imap.fetch(message_id,'RFC822')[0].attr['RFC822']
-    mail = TMail::Mail.parse(msg)
-    from_addresses = mail.header['from'].addrs
-    to_addresses = mail.header['to'].addrs
-  
-    from_addresses.each do |t_from|
-      from = hist_graph.find_or_create_vertex({:type => 'email', :address => t_from.address}, :address)
+    begin
+      msg = imap.fetch(message_id,'RFC822')[0].attr['RFC822']
+      mail = TMail::Mail.parse(msg)
+      from_addresses = mail.header['from'].addrs
+      to_addresses = mail.header['to'].addrs
+    rescue
+      next
+    end
     
-      to_addresses.each do |t_to|
-        to = hist_graph.find_or_create_vertex({:type => 'email', :address => t_to.address}, :address)
-        edge = hist_graph.find_or_create_edge(from, to, 'sent')
-        props = edge.properties || {}
-        props.merge!({ 'volume' => ((props['volume'].to_i || 0) + 1).to_s })
-        edge.properties = props
-        puts edge.to_json
-        puts "#{t_from.address} --> #{t_to.address} [to]"
-      end
-  
-      if mail.header['cc']
-        cc_addresses = mail.header['cc'].addrs
-        cc_addresses.each do |t_cc|
-          cc = hist_graph.find_or_create_vertex({:type => 'email', :address => t_cc.address}, :address)
-          edge = hist_graph.find_or_create_edge(from, cc, 'sent')
+    unless from_addresses
+      puts "Skipped email without a from address!"
+      next
+    end
+    
+    begin 
+      from_addresses.each do |t_from|
+        from = hist_graph.find_or_create_vertex({:type => 'email', :address => t_from.address}, :address)
+    
+        to_addresses.each do |t_to|
+          to = hist_graph.find_or_create_vertex({:type => 'email', :address => t_to.address}, :address)
+          edge = hist_graph.find_or_create_edge(from, to, 'sent')
           props = edge.properties || {}
           props.merge!({ 'volume' => ((props['volume'].to_i || 0) + 1).to_s })
           edge.properties = props
-        
-          puts "#{t_from.address} --> #{t_cc.address} [cc]"
+          puts edge.to_json
+          puts "[#{message_id}] #{t_from.address} --> #{t_to.address} [to]"
         end
-      end
-    
-      if mail.header['bcc']
-        bcc_addresses = mail.header['bcc'].addrs
-        bcc_addresses.each do |t_bcc|
-          bcc = hist_graph.find_or_create_vertex({:type => 'email', :address => t_bcc.address}, :address)
-          edge = hist_graph.find_or_create_edge(from, bcc, 'sent')
-          props = edge.properties || {}
-          props.merge!({ 'volume' => ((props['volume'].to_i || 0) + 1).to_s })
-          edge.properties = props          
-          
-          puts "#{t_from.address} --> #{to_bcc.address} [bcc]"
-        end
-      end
-    end
   
-    if (count % 100) == 0
-      puts "Saving..."
-      system 'rm -f /tmp/historic_email.graphml'
-      hist_graph.export '/tmp/historic_email.graphml'
-      puts hist_graph
-      graph_client.set USERKEY, hist_graph
+        if mail.header['cc']
+          cc_addresses = mail.header['cc'].addrs
+          cc_addresses.each do |t_cc|
+            cc = hist_graph.find_or_create_vertex({:type => 'email', :address => t_cc.address}, :address)
+            edge = hist_graph.find_or_create_edge(from, cc, 'sent')
+            props = edge.properties || {}
+            props.merge!({ 'volume' => ((props['volume'].to_i || 0) + 1).to_s })
+            edge.properties = props
+            puts edge.to_json
+            puts "[#{message_id}] #{t_from.address} --> #{t_cc.address} [cc]"
+          end
+        end
+    
+        if mail.header['bcc']
+          bcc_addresses = mail.header['bcc'].addrs
+          bcc_addresses.each do |t_bcc|
+            bcc = hist_graph.find_or_create_vertex({:type => 'email', :address => t_bcc.address}, :address)
+            edge = hist_graph.find_or_create_edge(from, bcc, 'sent')
+            props = edge.properties || {}
+            props.merge!({ 'volume' => ((props['volume'].to_i || 0) + 1).to_s })
+            edge.properties = props          
+            puts edge.to_json
+            puts "[#{message_id}] #{t_from.address} --> #{t_bcc.address} [bcc]"
+          end
+        end
+      end
+  
+      if (count % 100) == 0
+        puts "Saving..."
+        system 'rm -f /tmp/historic_email.graphml'
+        hist_graph.export '/tmp/historic_email.graphml'
+        puts hist_graph
+        graph_client.set USERKEY, hist_graph
+      end
+    rescue Exception => e
+      puts "Exception parsing email: #{e.message}}"
     end
     count += 1
   end

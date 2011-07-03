@@ -47,7 +47,8 @@ while(true) do
     json = redis.get uuid.body
     begin
       email = JSON.parse json
-    rescue
+    rescue Exception => e
+      puts "Problem parsing JSON: #{e.message} #{json}"
       next
     end
     
@@ -66,8 +67,8 @@ while(true) do
         props.merge!({ 'volume' => ((props['volume'].to_i || 0) + 1).to_s })
         edge.properties = props
       end
-    rescue
-      puts "Problem parsing address: #{to_addresses.to_s}"
+    rescue Exception => e
+      puts "Problem parsing address: #{to_addresses.to_s}, #{e.messsage}"
     end
     
     begin
@@ -83,8 +84,8 @@ while(true) do
           edge.properties = props
         end
       end
-    rescue
-      puts "Problem parsing address: #{cc_addresses.to_s}"
+    rescue Exception => e
+      puts "Problem parsing address: #{cc_addresses.to_s}, #{e.message}"
     end
     
     # For now - for debug, I am not removing emails from redis
