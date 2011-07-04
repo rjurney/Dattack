@@ -17,7 +17,9 @@ def strip_address(address)
   rescue TMail::SyntaxError
     puts("Invalid Email Address Detected: #{address}")
   else
-    mail.address
+    address = mail.address.gsub /"@/, '\"@'
+    address = address.gsub /""/, '"\"'
+    address
   end
 end
 

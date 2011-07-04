@@ -11,6 +11,8 @@ require 'uri'
 # export VOLDEMORT_ADDRESS="localhost:6666"
 # export MEMCACHED_ADDRESS="localhost:11211"
 
+$KCODE = 'UTF8'
+
 sqs = RightAws::SqsGen2.new(ENV['AWS_ACCESS_KEY_ID'], ENV['AWS_SECRET_ACCESS_KEY'])
 queue = RightAws::SqsGen2::Queue.new(sqs, 'kontexa_test')
 queue.clear() # Dev only!
