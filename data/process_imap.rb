@@ -10,11 +10,12 @@ require 'uri'
 require 'data/email'
 require 'lib/graph_client'
 require 'lib/email_graph'
+require 'lib/util'
 
 $KCODE = 'UTF8'
 
 PREFIX = "imap:"
-USERNAME = || ENV['GMAIL_USERNAME']
+USERNAME = ARGV[0] || ENV['GMAIL_USERNAME']
 USERKEY = PREFIX + USERNAME
 
 # Graph and persistence in Voldemort
@@ -43,12 +44,9 @@ skipped_ids = {}
   imap.examine(folder) # examine is read only
   imap.search(['ALL']).each do |message_id|
   
-    # Trap ctrl-c 
+    # Trap ctrl-c to persist
     if interrupted
-      puts "Saving..."
-      system 'rm /tmp/historic_email.graphml'
-      hist_graph.export '/tmp/historic_email.graphml'
-      graph_client.set USERKEY, hist_graph
+      save_state(hist_graph, USERKEY, graph_client)
       exit
     end
   
@@ -112,7 +110,7 @@ skipped_ids = {}
 
       # Persist to Voldemort as JSON and /tmp as graphml every 100 emails processed
       if count % 100
-        save_state
+        save_state(hist_graph, USERKEY, graph_client)
       end
       
     rescue Exception => e
@@ -120,11 +118,4 @@ skipped_ids = {}
     end
     count += 1
   end
-end
-
-def save_state
-    puts "Saving... #{hist_graph}"
-    system 'rm /tmp/historic_email.graphml'
-    hist_graph.export '/tmp/historic_email.graphml'
-    graph_client.set USERKEY, hist_graph
 end

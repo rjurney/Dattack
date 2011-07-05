@@ -11,7 +11,8 @@ SETUP
 
 ENVIRONMENT SETUP
 
-	Fill out the missing values in environment.sh, then run environment.sh to setup environment variables for voldemort, S3, Gmail, etc.
+	1) Fill out the missing values in environment.sh
+	2) Run environment.sh to setup environment variables for voldemort, S3, Gmail, etc.
 
 SCRAPING YOUR INBOX
 	At the moment, the only supported email provider is Gmail.  To scrape your Gmail account, run:

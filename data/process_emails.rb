@@ -10,11 +10,19 @@ require 'tmail'
 require 'lib/graph_client'
 require 'data/email'
 require 'lib/email_graph'
+require 'lib/util'
 require 'jcode'
 
 $KCODE = 'UTF8'
 
-user_name = "russell.jurney@gmail.com"
+unless(ARGV[0] || ENV['GMAIL_USERNAME'])
+  puts "Must supply gmail username as argument, or set ENV['GMAIL_USERNAME']"
+  exit
+end
+
+PREFIX = "bcc:"
+USERNAME = ARGV[0] || ENV['GMAIL_USERNAME']
+USERKEY = PREFIX + USERNAME
 
 SQS = RightAws::SqsGen2.new(ENV['AWS_ACCESS_KEY_ID'], ENV['AWS_SECRET_ACCESS_KEY'])
 queue = RightAws::SqsGen2::Queue.new(SQS, 'kontexa_test')
@@ -25,7 +33,7 @@ redis = Redis.new(:host => redis_uri.host, :port => redis_uri.port, :password =>
 graph_client = GraphClient.new ENV['VOLDEMORT_STORE'], ENV['VOLDEMORT_ADDRESS']
 graph = EmailGraph.new
 
-(tmp_graph = graph_client.get user_name).nil? ? graph : graph = tmp_graph
+(tmp_graph = graph_client.get USERKEY).nil? ? graph : graph = tmp_graph
 
 interrupted = false
 
@@ -38,12 +46,9 @@ count = 0
 while(true) do
   # Trap ctrl-c 
   if interrupted
-    puts "Saving..."
-    system 'rm /tmp/email.graphml'
-    graph.export '/tmp/email.graphml'
-    graph_client.set user_name, graph
+    save_state(graph, USERKEY, graph_client)
     if uuid and redis
-      redis.set uuid, nil
+      redis.del uuid
     end
     exit
   end
@@ -55,6 +60,7 @@ while(true) do
       email = JSON.parse json
     rescue Exception => e
       puts "Problem parsing JSON: #{e.message} #{json}"
+      redis.del uuid
       next
     end
     
@@ -94,14 +100,13 @@ while(true) do
       puts "Problem parsing address: #{cc_addresses.to_s}, #{e.message}"
     end
     
-    # For now - for debug, I am not removing emails from redis
-    redis.set uuid, nil
+    # For now - for debug, I am not removing emails from redis as we go
+    if redis and uuid
+      redis.del uuid
+    end
+    
     if (count % 10) == 0
-      puts "Saving..."
-      system 'rm -f /tmp/email.graphml'
-      graph.export '/tmp/email.graphml'
-      puts graph
-      graph_client.set "russell.jurney@gmail.com", graph
+      save_state(graph, USERKEY, graph_client)
     end
     count += 1
   end
