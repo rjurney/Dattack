@@ -11,8 +11,14 @@ require 'data/email'
 require 'lib/graph_client'
 require 'lib/email_graph'
 require 'lib/util'
+require 'jcode'
 
 $KCODE = 'UTF8'
+
+unless(ARGV[0] || ENV['GMAIL_USERNAME'])
+  puts "Must supply gmail username as argument, or set ENV['GMAIL_USERNAME']"
+  exit
+end
 
 PREFIX = "imap:"
 USERNAME = ARGV[0] || ENV['GMAIL_USERNAME']
@@ -109,7 +115,7 @@ skipped_ids = {}
       end
 
       # Persist to Voldemort as JSON and /tmp as graphml every 100 emails processed
-      if count % 100
+      if (count % 100) == 0
         save_state(hist_graph, USERKEY, graph_client)
       end
       
