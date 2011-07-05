@@ -1,7 +1,3 @@
-# Clone repository
-git clone git@github.com:rjurney/Dattack.git
-cd Dattack
-
 # Download and install deps
 mkdir deps
 cd deps

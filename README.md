@@ -8,7 +8,7 @@ Setup
 
 Note: JRuby is available at http://jruby.org.s3.amazonaws.com/downloads/1.6.2/jruby-bin-1.6.2.tar.gz if you do not already have it installed.  The jgem command should be available once you add JRuby's bin directory to your path.
 
-STEP 1) Run install.sh to download/clone, build and install dependencies.  Depending on your JRuby setup, you may need to sudo the gem installs.
+STEP 1) Run install.sh after cloning this repo, to build and install dependencies.  Depending on your JRuby setup, you may need to sudo the gem installs.
 
 STEP 2) Run stage_app.sh to initialize dependent services (voldemort)
 
