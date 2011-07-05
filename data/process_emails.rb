@@ -42,6 +42,9 @@ while(true) do
     system 'rm /tmp/email.graphml'
     graph.export '/tmp/email.graphml'
     graph_client.set user_name, graph
+    if uuid and redis
+      redis.set uuid, nil
+    end
     exit
   end
     
