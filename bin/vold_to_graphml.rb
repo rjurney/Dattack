@@ -5,7 +5,7 @@ require 'jcode'
 $KCODE = 'UTF8'
 require 'optparse'
 
-unless ARGV[0] and ARGV[1] and ARGV[2]
+unless ARGV[0] and ARGV[1]
   puts "Usage: bin/vold_to_graphml <voldemort_email_key>, <output_directory>"
   exit
 end
