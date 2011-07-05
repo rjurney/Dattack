@@ -18,7 +18,7 @@ USERNAME = "russell.jurney@gmail.com"
 USERKEY = PREFIX + USERNAME
 
 # Graph and persistence in Voldemort
-graph_client = GraphClient.new ENV['VOLDEMORT_STORE'], ENV['VOLDEMORT_ADDRESS'], ENV['MEMCACHED_ADDRESS']
+graph_client = GraphClient.new ENV['VOLDEMORT_STORE'], ENV['VOLDEMORT_ADDRESS']
 hist_graph = EmailGraph.new
 
 (tmp_graph = graph_client.get USERKEY).nil? ? hist_graph : hist_graph = tmp_graph

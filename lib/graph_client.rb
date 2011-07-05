@@ -14,7 +14,7 @@ $KCODE = 'UTF8'
 class GraphClient
 	attr_reader :voldemort, :memcache, :raw
 	
-	def initialize(voldemort_store, voldemort_address, memcache_address)
+	def initialize(voldemort_store, voldemort_address)
 		# Connections settable in environment.rb
 		@voldemort = VoldemortClient.new voldemort_store, voldemort_address
 		@raw = true

@@ -22,7 +22,7 @@ queue = RightAws::SqsGen2::Queue.new(SQS, 'kontexa_test')
 redis_uri = URI.parse(ENV["REDISTOGO_URL"])
 redis = Redis.new(:host => redis_uri.host, :port => redis_uri.port, :password => redis_uri.password)
 
-graph_client = GraphClient.new ENV['VOLDEMORT_STORE'], ENV['VOLDEMORT_ADDRESS'], ENV['MEMCACHED_ADDRESS']
+graph_client = GraphClient.new ENV['VOLDEMORT_STORE'], ENV['VOLDEMORT_ADDRESS']
 graph = EmailGraph.new
 
 (tmp_graph = graph_client.get user_name).nil? ? graph : graph = tmp_graph

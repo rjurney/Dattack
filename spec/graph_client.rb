@@ -3,7 +3,7 @@ require 'lib/email_graph'
 
 describe GraphClient, "#new" do
   it "should store a graph, fetch a graph" do
-    graph_client = GraphClient.new ENV['VOLDEMORT_STORE'], ENV['VOLDEMORT_ADDRESS'], ENV['MEMCACHED_ADDRESS']
+    graph_client = GraphClient.new ENV['VOLDEMORT_STORE'], ENV['VOLDEMORT_ADDRESS']
     graph = EmailGraph.new
   
     properties1 = {:type => 'email', :address => 'russell.jurney@gmail.com'}
