@@ -15,10 +15,14 @@ ENVIRONMENT SETUP
 	2) Run environment.sh to setup environment variables for voldemort, S3, Gmail, etc.
 
 SCRAPING YOUR INBOX
+
 	At the moment, the only supported email provider is Gmail.  To scrape your Gmail account, run:
 	
-	jruby data/process_imap.sh <username@gmail.com> <password>
+	jruby data/process_imap.rb <username@gmail.com> <password>
+	
+	jruby data/process_email.rb, which processes email in realtime, isn't working for other users yet.
 	
 VISUALIZATION
+
 	Download Gephi from http://gephi.org/users/download/ and load the graphml file that data/process_imap.rb created in /tmp
 	
