@@ -10,6 +10,9 @@ require 'tmail'
 require 'lib/graph_client'
 require 'data/email'
 require 'lib/email_graph'
+require 'jcode'
+
+$KCODE = 'UTF8'
 
 user_name = "russell.jurney@gmail.com"
 

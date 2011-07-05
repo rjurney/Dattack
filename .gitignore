@@ -1,3 +1,6 @@
 *.zip
 *.graphml
 .DS_Store
+deps/voldemort
+deps/blueprints
+deps/pacer

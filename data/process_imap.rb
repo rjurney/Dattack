@@ -1,4 +1,8 @@
 # The purpose of this library is to access emails via IMAP - the Inbox and Outbox
+# 
+# Usage: jruby data/process_imap.sh <username@gmail.com> <password>
+#
+
 require 'net/imap'
 require 'tmail'
 require 'json'
@@ -6,6 +10,8 @@ require 'uri'
 require 'data/email'
 require 'lib/graph_client'
 require 'lib/email_graph'
+
+$KCODE = 'UTF8'
 
 PREFIX = "historic:"
 USERNAME = "russell.jurney@gmail.com"
@@ -68,6 +74,7 @@ skipped_ids = {}
           to = hist_graph.find_or_create_vertex({:type => 'email', :address => t_to.address}, :address)
           edge = hist_graph.find_or_create_edge(from, to, 'sent')
           props = edge.properties || {}
+          # Ugly as all hell, but JSON won't let you have a numeric key in an object...
           props.merge!({ 'volume' => ((props['volume'].to_i || 0) + 1).to_s })
           edge.properties = props
           puts edge.to_json
@@ -80,6 +87,7 @@ skipped_ids = {}
             cc = hist_graph.find_or_create_vertex({:type => 'email', :address => t_cc.address}, :address)
             edge = hist_graph.find_or_create_edge(from, cc, 'sent')
             props = edge.properties || {}
+            # Ugly as all hell, but JSON won't let you have a numeric key in an object...
             props.merge!({ 'volume' => ((props['volume'].to_i || 0) + 1).to_s })
             edge.properties = props
             puts edge.to_json
@@ -93,6 +101,7 @@ skipped_ids = {}
             bcc = hist_graph.find_or_create_vertex({:type => 'email', :address => t_bcc.address}, :address)
             edge = hist_graph.find_or_create_edge(from, bcc, 'sent')
             props = edge.properties || {}
+            # Ugly as all hell, but JSON won't let you have a numeric key in an object...
             props.merge!({ 'volume' => ((props['volume'].to_i || 0) + 1).to_s })
             edge.properties = props          
             puts edge.to_json
@@ -100,14 +109,12 @@ skipped_ids = {}
           end
         end
       end
-  
-      if (count % 100) == 0
-        puts "Saving..."
-        system 'rm -f /tmp/historic_email.graphml'
-        hist_graph.export '/tmp/historic_email.graphml'
-        puts hist_graph
-        graph_client.set USERKEY, hist_graph
+
+      # Persist to Voldemort as JSON and /tmp as graphml every 100 emails processed
+      if count % 100
+        save_state
       end
+      
     rescue Exception => e
       puts "Exception parsing email: #{e.message}}"
     end
@@ -115,10 +122,9 @@ skipped_ids = {}
   end
 end
 
-def check_email_addresses(addresses)
-  addresses.split(/,\s*/).each do |email| 
-    unless email =~ /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\Z/i
-      puts "are invalid -- #{email}"
-    end
-  end
+def save_state
+    puts "Saving... #{hist_graph}"
+    system 'rm /tmp/historic_email.graphml'
+    hist_graph.export '/tmp/historic_email.graphml'
+    graph_client.set USERKEY, hist_graph
 end

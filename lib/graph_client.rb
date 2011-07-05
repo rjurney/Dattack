@@ -3,12 +3,13 @@
 # TinkerGraph ojects, and stores these objects, which contain indexes, in 
 # memcache, thereafter fetching from the cache directly.
 #
-$KCODE = 'UTF8'
  
 require 'rubygems'
 require 'voldemort-rb'
 require 'pacer'
 require 'lib/email_graph'
+require 'jcode'
+$KCODE = 'UTF8'
 
 class GraphClient
 	attr_reader :voldemort, :memcache, :raw
