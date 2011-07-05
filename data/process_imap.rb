@@ -13,8 +13,8 @@ require 'lib/email_graph'
 
 $KCODE = 'UTF8'
 
-PREFIX = "historic:"
-USERNAME = "russell.jurney@gmail.com"
+PREFIX = "imap:"
+USERNAME = || ENV['GMAIL_USERNAME']
 USERKEY = PREFIX + USERNAME
 
 # Graph and persistence in Voldemort

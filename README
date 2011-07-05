@@ -3,10 +3,15 @@ SUMMARY
 	This application reads your entire inbox via data/process_imap, and monitors your realtime inbox stream via data/process_emails.rb
 
 SETUP
+
 	Note: JRuby is available at http://jruby.org.s3.amazonaws.com/downloads/1.6.2/jruby-bin-1.6.2.tar.gz if you do not already have it installed.  The jgem command should be available once you add JRuby's bin directory to your path.
 
 	STEP 1) Run install.sh to download/clone, build and install dependencies.  Depending on your JRuby setup, you may need to sudo the gem installs.
 	STEP 2) Run stage_app.sh to initialize dependent services (voldemort)
+
+ENVIRONMENT SETUP
+
+	Fill out the missing values in environment.sh, then run environment.sh to setup environment variables for voldemort, S3, Gmail, etc.
 
 SCRAPING YOUR INBOX
 	At the moment, the only supported email provider is Gmail.  To scrape your Gmail account, run:

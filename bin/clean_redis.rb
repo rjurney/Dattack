@@ -1,3 +1,5 @@
+#!/usr/bin/env jruby
+
 require 'rubygems'
 require 'uri'
 require 'redis'
