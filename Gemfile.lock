@@ -40,6 +40,7 @@ PLATFORMS
 DEPENDENCIES
   activeresource
   json
+  jwz_threading
   memcache
   pacer
   redis

@@ -13,4 +13,5 @@ gem 'rspec'
 
 platforms :jruby do
   gem 'pacer'
+  gem 'jwz_threading'
 end
