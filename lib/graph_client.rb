@@ -40,6 +40,10 @@ class GraphClient
 	  @voldemort.delete key
 	end
 	
+	def del(key)
+	  delete(key)
+	end
+	
 	def return_graph(input)
 	  if input.nil? or input.empty?
 	    return nil

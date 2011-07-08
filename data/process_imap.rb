@@ -28,7 +28,8 @@ USERKEY = PREFIX + USERNAME
 graph_client = GraphClient.new ENV['VOLDEMORT_STORE'], ENV['VOLDEMORT_ADDRESS']
 hist_graph = EmailGraph.new
 
-(tmp_graph = graph_client.get USERKEY).nil? ? hist_graph : hist_graph = tmp_graph
+# Flush the user's imap records
+graph_client.del USERKEY
 
 # Trap ctrl-c
 interrupted = false
