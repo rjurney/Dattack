@@ -42,9 +42,10 @@ imap.login(USERNAME, ENV['GMAILPASS'])
 
 skipped_ids = {}
 
-# First check the OUTBOX
+boxes = []
 
-['INBOX','[Gmail]/Sent Mail'].each do |folder|
+# Import all in-mail and all out-mail
+['[Gmail]/All Mail','[Gmail]/Sent Mail'].each do |folder|
   skipped_ids[folder] = []
   
   imap.examine(folder) # examine is read only
@@ -57,11 +58,12 @@ skipped_ids = {}
     end
   
     begin
-      msg = imap.fetch(message_id,'RFC822')[0].attr['RFC822']
+      msg = imap.fetch(message_id,'RFC822.HEADER')[0].attr['RFC822.HEADER']
       mail = TMail::Mail.parse(msg)
       from_addresses = mail.header['from'].addrs
       to_addresses = mail.header['to'].addrs
-    rescue
+    rescue Exception => e
+        puts e.message
       next
     end
     
