@@ -46,7 +46,7 @@ skipped_ids = {}
 boxes = []
 
 # Import all in-mail and all out-mail
-['[Gmail]/All Mail','[Gmail]/Sent Mail'].each do |folder|
+['[Gmail]/All Mail'].each do |folder|
   skipped_ids[folder] = []
   
   imap.examine(folder) # examine is read only

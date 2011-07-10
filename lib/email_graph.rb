@@ -36,5 +36,27 @@ class EmailGraph < Pacer::TinkerGraph
     end
     e = self.create_edge(nil, from, to, label)
   end
-
+  
+  # Intersect two graphs using the value of unique_key to compare nodes
+  # Assumes unique_key is in fact unique in both graphs.
+  def intersect!(g2, unique_key)
+    g2.v.each do |v2|
+      search = self.v(unique_key => v2[unique_key])
+      if search.count > 0
+        v1 = search.first
+        self.merge v1, v2
+      else
+        # Nada, no intersection on this node
+      end
+  end
+  
+  # Union two graphs using the value of unique_key to compare nodes
+  def union!(g2, unique_key)
+    
+  end
+  
+  # Merge properties and find_or_create & increment/merge edges
+  def merge(v1, v2)
+    
+  end
 end
