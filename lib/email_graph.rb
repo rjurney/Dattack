@@ -48,6 +48,7 @@ class EmailGraph < Pacer::TinkerGraph
       else
         # Nada, no intersection on this node
       end
+    end
   end
   
   # Union two graphs using the value of unique_key to compare nodes
