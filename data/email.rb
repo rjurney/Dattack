@@ -17,10 +17,14 @@ def strip_address(address)
   rescue TMail::SyntaxError
     puts("Invalid Email Address Detected: #{address}")
   else
-    address = mail.address.gsub /"@/, '\"@'
-    address = address.gsub /""/, '"\"'
-    address
+    strip_quotes address
   end
+end
+
+def strip_quotes(address)
+  address = address.gsub /"@/, '\"@'
+  address = address.gsub /""/, '"\"'
+  address
 end
 
 # Extract the email part of the Name/email, i.e.: Russell Jurney <russell.jurney@gmail.com>

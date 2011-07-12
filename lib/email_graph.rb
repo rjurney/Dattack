@@ -51,8 +51,12 @@ class EmailGraph < Pacer::TinkerGraph
         # Nada, no intersection on this node
       end
     end
-    e1 = self.e 'sent'
-    g2.e('sent').each do |e2|
+
+    # Search for matching edges in the other graph. Delete if not found.
+    edges1 = self.e 'sent'
+    edges1.each do |e1|
+      # Delete this edge unless we find a match
+      g2.e.filter
       puts e2
       
       type.each do |e|
@@ -77,19 +81,6 @@ class EmailGraph < Pacer::TinkerGraph
     # Merge propertie
     v1.properties = intersect props1, props2
     nil
-  end
-  
-  # Merge edges that have the same unique_key values on each vertex end
-  def intersect_edge!(e1, e2, unique_key)
-    raise Exception.new("e1 must belong to this graph!") unless e1.graph === self
-    
-    if e1.label === e2.label
-      if e1.in_v[unique_key] === e2.in_v[unique_key]
-        if e1.out_v[unique_key] === e2.out_v[unique_key]
-          
-        end
-      end
-    end
   end
   
   def intersect(hash1, hash2)

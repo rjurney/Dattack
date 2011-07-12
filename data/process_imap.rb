@@ -75,44 +75,44 @@ boxes = []
     
     begin 
       from_addresses.each do |t_from|
-        from = hist_graph.find_or_create_vertex({:type => 'email', :address => t_from.address}, :address)
+        from = hist_graph.find_or_create_vertex({:type => 'email', :address => (strip_quotes t_from.address), :network => ENV['GMAIL_USERNAME']}, :address)
     
         to_addresses.each do |t_to|
-          to = hist_graph.find_or_create_vertex({:type => 'email', :address => t_to.address}, :address)
+          to = hist_graph.find_or_create_vertex({:type => 'email', :address => (strip_quotes t_to.address), :network => ENV['GMAIL_USERNAME']}, :address)
           edge = hist_graph.find_or_create_edge(from, to, 'sent')
           props = edge.properties || {}
           # Ugly as all hell, but JSON won't let you have a numeric key in an object...
           props.merge!({ 'volume' => ((props['volume'].to_i || 0) + 1).to_s })
           edge.properties = props
           puts edge.to_json
-          puts "[#{message_id}] #{t_from.address} --> #{t_to.address} [to]"
+          puts "[#{message_id}] #{strip_quotes t_from.address} --> #{strip_quotes t_to.address} [to]"
         end
   
         if mail.header['cc']
           cc_addresses = mail.header['cc'].addrs
           cc_addresses.each do |t_cc|
-            cc = hist_graph.find_or_create_vertex({:type => 'email', :address => t_cc.address}, :address)
+            cc = hist_graph.find_or_create_vertex({:type => 'email', :address => (strip_quotes t_cc.address), :network => ENV['GMAIL_USERNAME']}, :address)
             edge = hist_graph.find_or_create_edge(from, cc, 'sent')
             props = edge.properties || {}
             # Ugly as all hell, but JSON won't let you have a numeric key in an object...
             props.merge!({ 'volume' => ((props['volume'].to_i || 0) + 1).to_s })
             edge.properties = props
             puts edge.to_json
-            puts "[#{message_id}] #{t_from.address} --> #{t_cc.address} [cc]"
+            puts "[#{message_id}] #{strip_quotes t_from.address} --> #{strip_quotes t_cc.address} [cc]"
           end
         end
     
         if mail.header['bcc']
           bcc_addresses = mail.header['bcc'].addrs
           bcc_addresses.each do |t_bcc|
-            bcc = hist_graph.find_or_create_vertex({:type => 'email', :address => t_bcc.address}, :address)
+            bcc = hist_graph.find_or_create_vertex({:type => 'email', :address => (strip_quotes t_bcc.address), :network => ENV['GMAIL_USERNAME']}, :address)
             edge = hist_graph.find_or_create_edge(from, bcc, 'sent')
             props = edge.properties || {}
             # Ugly as all hell, but JSON won't let you have a numeric key in an object...
             props.merge!({ 'volume' => ((props['volume'].to_i || 0) + 1).to_s })
             edge.properties = props          
             puts edge.to_json
-            puts "[#{message_id}] #{t_from.address} --> #{t_bcc.address} [bcc]"
+            puts "[#{message_id}] #{strip_quotes t_from.address} --> #{strip_quotes t_bcc.address} [bcc]"
           end
         end
       end
