@@ -15,14 +15,14 @@ require 'jcode'
 
 $KCODE = 'UTF8'
 
-unless(ARGV[0] || ENV['GMAIL_USERNAME'])
+network_name = ARGV[0] || ENV['GMAIL_USERNAME']
+unless(network_name)
   puts "Must supply gmail username as argument, or set ENV['GMAIL_USERNAME']"
   exit
 end
 
 PREFIX = "bcc:"
-USERNAME = ARGV[0] || ENV['GMAIL_USERNAME']
-USERKEY = PREFIX + USERNAME
+USERKEY = PREFIX + network_name
 
 SQS = RightAws::SqsGen2.new(ENV['AWS_ACCESS_KEY_ID'], ENV['AWS_SECRET_ACCESS_KEY'])
 queue = RightAws::SqsGen2::Queue.new(SQS, 'kontexa_test')

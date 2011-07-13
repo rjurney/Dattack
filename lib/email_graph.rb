@@ -41,14 +41,13 @@ class EmailGraph < Pacer::TinkerGraph
   # Intersect two graphs using the value of unique_key to compare nodes
   # Assumes unique_key is in fact unique in both graphs.
   def intersect!(g2, unique_key)
-    g2_edges = []
-    g2.v.each do |v2|
-      search = self.v(unique_key => v2[unique_key])
+    self.v.each do |v1|
+      search = g2.v(unique_key => v1[unique_key])
       if search.count > 0
-        v1 = search.first
-        g2_edges += self.intersect_vertex! v1, v2
+        v2 = search.first
+        self.intersect_vertex! v1, v2
       else
-        # Nada, no intersection on this node
+        
       end
     end
 
@@ -71,19 +70,39 @@ class EmailGraph < Pacer::TinkerGraph
   end
   
   # Merge node properties and return new edges to merge
-  def intersect_vertex!(v1, v2)
-    raise Exception.new("v1 must belong to this graph!") unless v1.graph === self 
-    
-    # Merge proprties, return edge list for additional processing
-    props1 = v1.properties
-    props2 = v2.properties
+  def intersect_vertex!(v1, v2, unique_key)
+    raise Exception.new("v1 must belong to this graph!") unless v1.graph === self
         
-    # Merge propertie
-    v1.properties = intersect props1, props2
-    nil
+    # Merge properties
+    v1.properties = intersect_hash v1.properties, v2.properties
+    
+    nukes = []
+    # Merge edges
+    v1.both_e.each do |e1|
+       match = false
+       v2.both_e.each do |e2|
+          if e1.out_v.first[unique_key] === e2.out_v.first[unique_key]
+             puts "match1"
+             if e1.in_v.first[unique_key] === e2.in_v.first[unique_key]
+                puts "match2"
+                match = true
+                puts "Match on #{e1.out_v.first[unique_key]} <-> #{e1.in_v.first[unique_key]}"
+          	    e1.properties = intersect_hash e1.properties, e2.properties
+                break
+             end
+          end
+       end
+       
+       unless match
+          nukes << e1
+       end
+    end
+    
+    nukes.each {|e| e.delete!}   
+    v1
   end
   
-  def intersect(hash1, hash2)
+  def intersect_hash(hash1, hash2)
     intersection = hash1.keys & hash2.keys
     c = hash1.dup.update(hash2)
     inter = {}
