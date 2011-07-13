@@ -41,27 +41,17 @@ class EmailGraph < Pacer::TinkerGraph
   # Intersect two graphs using the value of unique_key to compare nodes
   # Assumes unique_key is in fact unique in both graphs.
   def intersect!(g2, unique_key)
+    nuked = []
     self.v.each do |v1|
       search = g2.v(unique_key => v1[unique_key])
       if search.count > 0
         v2 = search.first
-        self.intersect_vertex! v1, v2
+        self.intersect_vertex! v1, v2, unique_key
       else
-        
+        nuked << v1
       end
     end
-
-    # Search for matching edges in the other graph. Delete if not found.
-    edges1 = self.e 'sent'
-    edges1.each do |e1|
-      # Delete this edge unless we find a match
-      g2.e.filter
-      puts e2
-      
-      type.each do |e|
-        self.v(unique_key => e.out_v[unique_key])
-      end
-    end
+    nuked.each {|v| v.delete!}
   end
   
   # Union two graphs using the value of unique_key to compare nodes

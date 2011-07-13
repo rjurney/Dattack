@@ -56,7 +56,7 @@ describe EmailGraph, "#find_or_create_edge" do
   end
 end
 
-describe EmailGraph, "#intersect" do
+describe EmailGraph, "#intersect_vertex!" do
   # Original graph
   graph1 = EmailGraph.new
 
@@ -77,12 +77,45 @@ describe EmailGraph, "#intersect" do
   e3 = graph2.find_or_create_edge(v2, v3, 'sent')
   
   # Graphs are ready - now intersect them and inspect the result.
-  #node1.out_e.count.should == 2
+  node1.out_e.count.should == 2
   graph1.intersect_vertex! node1, v1, 'address'
   node1.both_e.count.should == 1
   
   node1.properties.size.should == 2
   node1['type'].should == 'email'
   node1['address'].should == 'russell.jurney@gmail.com' 
+  
+end
+
+describe EmailGraph, "#intersect!" do
+  # Original graph
+  graph1 = EmailGraph.new
+
+  node1 = graph1.create_vertex({:type => 'email', :address => 'russell.jurney@gmail.com', :network => 'foo@bar.com'})
+  node2 = graph1.create_vertex({:type => 'email', :address => 'kate.jurney@gmail.com'})
+  node3 = graph1.create_vertex({:type => 'email', :address => 'jurney@gmail.com'})
+  edge1 = graph1.find_or_create_edge(node1, node2, 'sent')
+  edge2 = graph1.find_or_create_edge(node1, node3, 'sent')
+  edge3 = graph1.find_or_create_edge(node2, node1, 'sent')
+  
+  # Graph to interset
+  graph2 = EmailGraph.new
+  v1 = graph2.create_vertex({:type => 'email', :address => 'russell.jurney@gmail.com'})
+  v2 = graph2.create_vertex({:type => 'email', :address => 'kate.jurney@gmail.com'})
+  v3 = graph2.create_vertex({:type => 'email', :address => 'billy@go.com'})
+  e1 = graph2.find_or_create_edge(v1, v2, 'sent')
+  e2 = graph2.find_or_create_edge(v1, v3, 'sent')
+  e3 = graph2.find_or_create_edge(v2, v3, 'sent')
+  
+  # Graphs are ready - now intersect them and inspect the result.
+  graph1.e.count.should == 3
+  graph1.v.count.should == 3
+  
+  graph1.intersect! graph2, 'address'
+  
+  graph1.e.count.should == 1
+  graph1.v.count.should == 2
+  
+  puts graph1.to_json
   
 end
