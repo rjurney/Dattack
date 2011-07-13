@@ -77,7 +77,9 @@ class EmailGraph < Pacer::TinkerGraph
                 puts "match2"
                 match = true
                 puts "Match on #{e1.out_v.first[unique_key]} <-> #{e1.in_v.first[unique_key]}"
+                volume = (e1['volume']||0) + (e2['volume']||0)
           	    e1.properties = intersect_hash e1.properties, e2.properties
+          	    e1['volume'] = volume
                 break
              end
           end
