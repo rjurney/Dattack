@@ -68,9 +68,9 @@ class EmailGraph < Pacer::TinkerGraph
     
     nukes = []
     # Merge edges
-    v1.both_e.each do |e1|
+    v1.out_e.each do |e1|
        match = false
-       v2.both_e.each do |e2|
+       v2.out_e.each do |e2|
           if e1.out_v.first[unique_key] === e2.out_v.first[unique_key]
              if e1.in_v.first[unique_key] === e2.in_v.first[unique_key]
                 match = true

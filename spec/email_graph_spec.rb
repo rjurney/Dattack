@@ -79,7 +79,7 @@ describe EmailGraph, "#intersect_vertex!" do
   # Graphs are ready - now intersect them and inspect the result.
   node1.out_e.count.should == 2
   graph1.intersect_vertex! node1, v1, 'address'
-  node1.both_e.count.should == 1
+  node1.out_e.count.should == 1
   
   node1.properties.size.should == 2
   node1['type'].should == 'email'
