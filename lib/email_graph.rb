@@ -72,9 +72,7 @@ class EmailGraph < Pacer::TinkerGraph
        match = false
        v2.both_e.each do |e2|
           if e1.out_v.first[unique_key] === e2.out_v.first[unique_key]
-             puts "match1"
              if e1.in_v.first[unique_key] === e2.in_v.first[unique_key]
-                puts "match2"
                 match = true
                 puts "Match on #{e1.out_v.first[unique_key]} <-> #{e1.in_v.first[unique_key]}"
                 volume = (e1['volume']||0) + (e2['volume']||0)

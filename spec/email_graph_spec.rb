@@ -97,6 +97,7 @@ describe EmailGraph, "#intersect!" do
   edge1 = graph1.find_or_create_edge(node1, node2, 'sent')
   edge2 = graph1.find_or_create_edge(node1, node3, 'sent')
   edge3 = graph1.find_or_create_edge(node2, node1, 'sent')
+  edge1['volume'] = 2
   
   # Graph to interset
   graph2 = EmailGraph.new
@@ -106,6 +107,7 @@ describe EmailGraph, "#intersect!" do
   e1 = graph2.find_or_create_edge(v1, v2, 'sent')
   e2 = graph2.find_or_create_edge(v1, v3, 'sent')
   e3 = graph2.find_or_create_edge(v2, v3, 'sent')
+  e1['volume'] = 6
   
   # Graphs are ready - now intersect them and inspect the result.
   graph1.e.count.should == 3
@@ -115,6 +117,8 @@ describe EmailGraph, "#intersect!" do
   
   graph1.e.count.should == 1
   graph1.v.count.should == 2
+  
+  graph1.e.first['volume'].should === 8
   
   puts graph1.to_json
   
