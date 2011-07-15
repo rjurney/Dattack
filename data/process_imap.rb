@@ -15,14 +15,14 @@ require 'jcode'
 
 $KCODE = 'UTF8'
 
-network_name = ARGV[0] || ENV['GMAIL_USERNAME']
-unless(network_name)
+unless(ARGV[0] || ENV['GMAIL_USERNAME'])
   puts "Must supply gmail username as argument, or set ENV['GMAIL_USERNAME']"
   exit
 end
 
 PREFIX = "imap:"
-USERKEY = PREFIX + network_name
+USERNAME = ARGV[0] || ENV['GMAIL_USERNAME']
+USERKEY = PREFIX + USERNAME
 
 # Graph and persistence in Voldemort
 graph_client = GraphClient.new ENV['VOLDEMORT_STORE'], ENV['VOLDEMORT_ADDRESS']
@@ -39,7 +39,7 @@ count = 1
 
 # Account setup
 imap = Net::IMAP.new('imap.gmail.com',993,true)
-imap.login(network_name, ENV['GMAILPASS'])
+imap.login(USERNAME, ENV['GMAILPASS'])
 
 skipped_ids = {}
 
@@ -75,10 +75,10 @@ boxes = []
     
     begin 
       from_addresses.each do |t_from|
-        from = hist_graph.find_or_create_vertex({:type => 'email', :address => (strip_quotes t_from.address), :network => network_name}, :address)
+        from = hist_graph.find_or_create_vertex({:type => 'email', :address => (strip_quotes t_from.address), :network => ENV['GMAIL_USERNAME']}, :address)
     
         to_addresses.each do |t_to|
-          to = hist_graph.find_or_create_vertex({:type => 'email', :address => (strip_quotes t_to.address), :network => network_name}, :address)
+          to = hist_graph.find_or_create_vertex({:type => 'email', :address => (strip_quotes t_to.address), :network => ENV['GMAIL_USERNAME']}, :address)
           edge = hist_graph.find_or_create_edge(from, to, 'sent')
           props = edge.properties || {}
           # Ugly as all hell, but JSON won't let you have a numeric key in an object...
@@ -91,7 +91,7 @@ boxes = []
         if mail.header['cc']
           cc_addresses = mail.header['cc'].addrs
           cc_addresses.each do |t_cc|
-            cc = hist_graph.find_or_create_vertex({:type => 'email', :address => (strip_quotes t_cc.address), :network => network_name}, :address)
+            cc = hist_graph.find_or_create_vertex({:type => 'email', :address => (strip_quotes t_cc.address), :network => ENV['GMAIL_USERNAME']}, :address)
             edge = hist_graph.find_or_create_edge(from, cc, 'sent')
             props = edge.properties || {}
             # Ugly as all hell, but JSON won't let you have a numeric key in an object...
@@ -105,7 +105,7 @@ boxes = []
         if mail.header['bcc']
           bcc_addresses = mail.header['bcc'].addrs
           bcc_addresses.each do |t_bcc|
-            bcc = hist_graph.find_or_create_vertex({:type => 'email', :address => (strip_quotes t_bcc.address), :network => network_name}, :address)
+            bcc = hist_graph.find_or_create_vertex({:type => 'email', :address => (strip_quotes t_bcc.address), :network => ENV['GMAIL_USERNAME']}, :address)
             edge = hist_graph.find_or_create_edge(from, bcc, 'sent')
             props = edge.properties || {}
             # Ugly as all hell, but JSON won't let you have a numeric key in an object...
