@@ -56,4 +56,10 @@ class GraphClient
 		end
 	end
 	
+	def write_json(key)
+	  json = @voldemort.get key
+	  File.open('/tmp/' + key + '.json', 'w') {|f| f.write(json) }
+	  true
+	end
+	
 end
