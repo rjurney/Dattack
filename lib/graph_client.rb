@@ -56,9 +56,13 @@ class GraphClient
 		end
 	end
 	
-	def write_json(key)
+	# Helps with debug - json_xs has very verbose failure errors on parsing
+	def test_json(key)
 	  json = @voldemort.get key
-	  File.open('/tmp/' + key + '.json', 'w') {|f| f.write(json) }
+	  filename = '/tmp/' + key + '.json'
+	  File.open(filename, 'w') {|f| f.write(json) }
+	  output = `env cat #{filename}|json_xs`
+	  puts output
 	  true
 	end
 	

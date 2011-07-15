@@ -5,7 +5,7 @@ def split_addresses(addy_string)
   if addy_string and addy_string.is_a? String
     addresses = addy_string.split ",\s"
     addresses.each do |addy|
-      final << strip_address(addy)
+      final << strip_quotes(strip_address(addy))
     end
   end
   final
@@ -16,6 +16,7 @@ def strip_address(address)
     mail = TMail::Address.parse address
   rescue TMail::SyntaxError
     puts("Invalid Email Address Detected: #{address}")
+    strip_quotes address
   else
     strip_quotes address
   end
