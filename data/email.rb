@@ -24,7 +24,8 @@ require 'tmail'
 
 def strip_quotes(address)
   address = address.gsub /"@/, '\"@'
-  address = address.gsub /""/, '"\"'
+  address = address.gsub /^""/, '"\"'
+  address = address.gsub /""$/, '\""'
   address
 end
 

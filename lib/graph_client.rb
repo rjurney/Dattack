@@ -9,7 +9,7 @@ require 'voldemort-rb'
 require 'pacer'
 require 'lib/email_graph'
 require 'jcode'
-require 'email'
+require 'data/email'
 $KCODE = 'UTF8'
 
 class GraphClient
@@ -34,7 +34,8 @@ class GraphClient
 	end
 	
 	def set_json(key, value)
-		@voldemort.put key, strip_quotes value
+	  escaped_value = strip_quotes(value)
+		@voldemort.put key, escaped_value
 	end
 	
 	def delete(key)
@@ -65,7 +66,8 @@ class GraphClient
 	  filename
 	end
 	
-	def test_json(path)
+	def test_json(key)
+	  path = write_voldemort_json key
 	  output = `env cat #{path}|json_xs`
 	  puts output
 	end
