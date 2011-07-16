@@ -20,17 +20,17 @@ class GraphClient
 		@raw = true
 	end
 	
-	JSON_ESCAPE_MAP = {
-        '\\'    => '\\\\',
-        '</'    => '<\/',
-        "\r\n"  => '\n',
-        "\n"    => '\n',
-        "\r"    => '\n',
-        '"'     => '\\"' }
-        
-	def escape_json(json)
-    json.gsub(/(\\|<\/|\r\n|[\n\r"])/) { JSON_ESCAPE_MAP[$1] }
-  end
+  # JSON_ESCAPE_MAP = {
+  #         '\\'    => '\\\\',
+  #         '</'    => '<\/',
+  #         "\r\n"  => '\n',
+  #         "\n"    => '\n',
+  #         "\r"    => '\n',
+  #         '"'     => '\\"' }
+  #         
+  # def escape_json(json)
+  #     json.gsub(/(\\|<\/|\r\n|[\n\r"])/) { JSON_ESCAPE_MAP[$1] }
+  #   end
 	
 	def get(key)
 		graph = return_graph get_json key
@@ -41,11 +41,12 @@ class GraphClient
 	end
 	
 	def set(key, graph)
-	  set_json key, escape_json(graph.to_json)
+	  # Need to fix to_json in blueprints...
+	  set_json key, graph.to_json
 	end
 	
 	def set_json(key, value)
-	  escaped_value = 
+	  escaped_value = value.gsub /""/, '"'
 		@voldemort.put key, escaped_value
 	end
 	
