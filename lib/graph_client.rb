@@ -9,7 +9,6 @@ require 'voldemort-rb'
 require 'pacer'
 require 'lib/email_graph'
 require 'jcode'
-require 'data/email'
 $KCODE = 'UTF8'
 
 class GraphClient
@@ -21,6 +20,18 @@ class GraphClient
 		@raw = true
 	end
 	
+	JSON_ESCAPE_MAP = {
+        '\\'    => '\\\\',
+        '</'    => '<\/',
+        "\r\n"  => '\n',
+        "\n"    => '\n',
+        "\r"    => '\n',
+        '"'     => '\\"' }
+        
+	def escape_json(json)
+    json.gsub(/(\\|<\/|\r\n|[\n\r"])/) { JSON_ESCAPE_MAP[$1] }
+  end
+	
 	def get(key)
 		graph = return_graph get_json key
 	end
@@ -30,11 +41,11 @@ class GraphClient
 	end
 	
 	def set(key, graph)
-	  set_json key, graph.to_json
+	  set_json key, escape_json(graph.to_json)
 	end
 	
 	def set_json(key, value)
-	  escaped_value = strip_quotes(value)
+	  escaped_value = 
 		@voldemort.put key, escaped_value
 	end
 	
