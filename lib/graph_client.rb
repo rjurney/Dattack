@@ -9,6 +9,7 @@ require 'voldemort-rb'
 require 'pacer'
 require 'lib/email_graph'
 require 'jcode'
+require 'email'
 $KCODE = 'UTF8'
 
 class GraphClient
@@ -33,7 +34,7 @@ class GraphClient
 	end
 	
 	def set_json(key, value)
-		@voldemort.put key, value
+		@voldemort.put key, strip_quotes value
 	end
 	
 	def delete(key)
@@ -56,14 +57,17 @@ class GraphClient
 		end
 	end
 	
-	# Helps with debug - json_xs has very verbose failure errors on parsing
-	def test_json(key)
+	# Helps with debug - writes what is in voldemort
+	def write_voldemort_json(key)
 	  json = @voldemort.get key
 	  filename = '/tmp/' + key + '.json'
 	  File.open(filename, 'w') {|f| f.write(json) }
-	  output = `env cat #{filename}|json_xs`
+	  filename
+	end
+	
+	def test_json(path)
+	  output = `env cat #{path}|json_xs`
 	  puts output
-	  true
 	end
 	
 end

@@ -16,17 +16,28 @@ require 'jcode'
 $KCODE = 'UTF8'
 
 unless(ARGV[0] || ENV['GMAIL_USERNAME'])
-  puts "Must supply gmail username as argument, or set ENV['GMAIL_USERNAME']"
+  puts "Must supply gmail username as 1st argument, or set ENV['GMAIL_USERNAME']"
+  exit
+end
+
+unless(ARGV[1] || ENV['GMAILPASS'])
+  puts "Must supply gmail password as 2nd argument, or set ENV['GMAILPASS']"
+  exit
+end
+
+unless(ENV['VOLDEMORT_STORE'] && ENV['VOLDEMORT_ADDRESS'])
+  puts "Must set ENV['VOLDEMORT_STORE'] and ENV['VOLDEMORT_ADDRESS']"
   exit
 end
 
 PREFIX = "imap:"
 USERNAME = ARGV[0] || ENV['GMAIL_USERNAME']
+PASSWORD = ARGV[1] || ENV['GMAILPASS']
 USERKEY = PREFIX + USERNAME
 
 # Graph and persistence in Voldemort
 graph_client = GraphClient.new ENV['VOLDEMORT_STORE'], ENV['VOLDEMORT_ADDRESS']
-hist_graph = EmailGraph.new
+graph = EmailGraph.new
 
 # Flush the user's imap records
 graph_client.del USERKEY
@@ -39,7 +50,7 @@ count = 1
 
 # Account setup
 imap = Net::IMAP.new('imap.gmail.com',993,true)
-imap.login(USERNAME, ENV['GMAILPASS'])
+imap.login(USERNAME, PASSWORD)
 
 skipped_ids = {}
 
@@ -54,7 +65,7 @@ boxes = []
   
     # Trap ctrl-c to persist
     if interrupted
-      save_state(hist_graph, USERKEY, graph_client)
+      save_state(graph, USERKEY, graph_client)
       exit
     end
   
@@ -75,11 +86,11 @@ boxes = []
     
     begin 
       from_addresses.each do |t_from|
-        from = hist_graph.find_or_create_vertex({:type => 'email', :address => (strip_quotes t_from.address), :network => ENV['GMAIL_USERNAME']}, :address)
+        from = graph.find_or_create_vertex({:type => 'email', :address => (strip_quotes t_from.address), :network => USERNAME}, :address)
     
         to_addresses.each do |t_to|
-          to = hist_graph.find_or_create_vertex({:type => 'email', :address => (strip_quotes t_to.address), :network => ENV['GMAIL_USERNAME']}, :address)
-          edge = hist_graph.find_or_create_edge(from, to, 'sent')
+          to = graph.find_or_create_vertex({:type => 'email', :address => (strip_quotes t_to.address), :network => USERNAME}, :address)
+          edge = graph.find_or_create_edge(from, to, 'sent')
           props = edge.properties || {}
           # Ugly as all hell, but JSON won't let you have a numeric key in an object...
           props.merge!({ 'volume' => ((props['volume'].to_i || 0) + 1).to_s })
@@ -91,8 +102,8 @@ boxes = []
         if mail.header['cc']
           cc_addresses = mail.header['cc'].addrs
           cc_addresses.each do |t_cc|
-            cc = hist_graph.find_or_create_vertex({:type => 'email', :address => (strip_quotes t_cc.address), :network => ENV['GMAIL_USERNAME']}, :address)
-            edge = hist_graph.find_or_create_edge(from, cc, 'sent')
+            cc = graph.find_or_create_vertex({:type => 'email', :address => (strip_quotes t_cc.address), :network => USERNAME}, :address)
+            edge = graph.find_or_create_edge(from, cc, 'sent')
             props = edge.properties || {}
             # Ugly as all hell, but JSON won't let you have a numeric key in an object...
             props.merge!({ 'volume' => ((props['volume'].to_i || 0) + 1).to_s })
@@ -105,8 +116,8 @@ boxes = []
         if mail.header['bcc']
           bcc_addresses = mail.header['bcc'].addrs
           bcc_addresses.each do |t_bcc|
-            bcc = hist_graph.find_or_create_vertex({:type => 'email', :address => (strip_quotes t_bcc.address), :network => ENV['GMAIL_USERNAME']}, :address)
-            edge = hist_graph.find_or_create_edge(from, bcc, 'sent')
+            bcc = graph.find_or_create_vertex({:type => 'email', :address => (strip_quotes t_bcc.address), :network => USERNAME}, :address)
+            edge = graph.find_or_create_edge(from, bcc, 'sent')
             props = edge.properties || {}
             # Ugly as all hell, but JSON won't let you have a numeric key in an object...
             props.merge!({ 'volume' => ((props['volume'].to_i || 0) + 1).to_s })
@@ -119,7 +130,7 @@ boxes = []
 
       # Persist to Voldemort as JSON and /tmp as graphml every 100 emails processed
       if (count % 100) == 0
-        save_state(hist_graph, USERKEY, graph_client)
+        save_state(graph, USERKEY, graph_client)
       end
       
     rescue Exception => e
