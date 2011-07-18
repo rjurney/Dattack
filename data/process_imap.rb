@@ -89,12 +89,11 @@ boxes = []
     
         to_addresses.each do |t_to|
           to = graph.find_or_create_vertex({:type => 'email', :address => t_to.address, :network => USERNAME}, :address)
-          edge = graph.find_or_create_edge(from, to, 'sent')
+          edge, status = graph.find_or_create_edge(from, to, 'sent')
           props = edge.properties || {}
           # Ugly as all hell, but JSON won't let you have a numeric key in an object...
           props.merge!({ 'volume' => ((props['volume'].to_i || 0) + 1).to_s })
           edge.properties = props
-          puts edge.to_json
           puts "[#{message_id}] #{t_from.address} --> #{t_to.address} [to]"
         end
   
@@ -102,12 +101,11 @@ boxes = []
           cc_addresses = mail.header['cc'].addrs
           cc_addresses.each do |t_cc|
             cc = graph.find_or_create_vertex({:type => 'email', :address => (t_cc.address), :network => USERNAME}, :address)
-            edge = graph.find_or_create_edge(from, cc, 'sent')
+            edge, status = graph.find_or_create_edge(from, cc, 'sent')
             props = edge.properties || {}
             # Ugly as all hell, but JSON won't let you have a numeric key in an object...
             props.merge!({ 'volume' => ((props['volume'].to_i || 0) + 1).to_s })
             edge.properties = props
-            puts edge.to_json
             puts "[#{message_id}] #{t_from.address} --> #{t_cc.address} [cc]"
           end
         end
@@ -116,12 +114,11 @@ boxes = []
           bcc_addresses = mail.header['bcc'].addrs
           bcc_addresses.each do |t_bcc|
             bcc = graph.find_or_create_vertex({:type => 'email', :address => (t_bcc.address), :network => USERNAME}, :address)
-            edge = graph.find_or_create_edge(from, bcc, 'sent')
+            edge, status = graph.find_or_create_edge(from, bcc, 'sent')
             props = edge.properties || {}
             # Ugly as all hell, but JSON won't let you have a numeric key in an object...
             props.merge!({ 'volume' => ((props['volume'].to_i || 0) + 1).to_s })
             edge.properties = props          
-            puts edge.to_json
             puts "[#{message_id}] #{t_from.address} --> #{t_bcc.address} [bcc]"
           end
         end

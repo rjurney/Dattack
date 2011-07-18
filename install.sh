@@ -21,4 +21,10 @@ jgem build pacer.gemspec
 jgem install pacer-0.7.1-java.gem # Add sudo if this fails?
 cd ..
 
-# Now you are ready to run stage_app.sh to get dependent services running!
+# Now you are ready to run stage_app.sh to get dependent services running!# Run dependent services and setup Amazon SQS
+
+# Run Voldemort in the background
+deps/voldemort-0.81/bin/voldemort-server.sh config/single_node_cluster > /tmp/voldemort.log &
+
+# Create SQS Queue
+jruby bin/create_sqs_queue.rb
