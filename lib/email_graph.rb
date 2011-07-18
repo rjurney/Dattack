@@ -68,7 +68,8 @@ class EmailGraph < Pacer::TinkerGraph
         all_edges += old_edges
       else
         new_v2 = g1.find_or_create_vertex v2.properties, v2[unique_key]
-        old_edges = v2.out_e.each {|e| e}
+        old_edges = []
+        v2.out_e.each {|e| old_edges << e.first}
         all_edges += old_edges
       end
     end
