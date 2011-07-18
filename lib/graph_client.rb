@@ -20,18 +20,6 @@ class GraphClient
 		@raw = true
 	end
 	
-  # JSON_ESCAPE_MAP = {
-  #         '\\'    => '\\\\',
-  #         '</'    => '<\/',
-  #         "\r\n"  => '\n',
-  #         "\n"    => '\n',
-  #         "\r"    => '\n',
-  #         '"'     => '\\"' }
-  #         
-  # def escape_json(json)
-  #     json.gsub(/(\\|<\/|\r\n|[\n\r"])/) { JSON_ESCAPE_MAP[$1] }
-  #   end
-	
 	def get(key)
 		graph = return_graph get_json key
 	end
