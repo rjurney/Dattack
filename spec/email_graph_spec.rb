@@ -2,6 +2,9 @@ require 'lib/email_graph'
 require 'rspec'
 
 describe EmailGraph, "#find_or_create_vertex" do
+
+  puts 'EmailGraph #find_or_create_vertex'
+
   # Setup
   graph = EmailGraph.new
   properties1 = {:type => 'email', :address => 'russell.jurney@gmail.com'}
@@ -23,6 +26,9 @@ describe EmailGraph, "#find_or_create_vertex" do
 end
 
 describe EmailGraph, "#find_or_create_edge" do
+
+  puts 'EmailGraph #find_or_create_edge'
+    
   # Setup
   graph = EmailGraph.new
   properties1 = {:type => 'email', :address => 'russell.jurney@gmail.com'}
@@ -57,6 +63,9 @@ describe EmailGraph, "#find_or_create_edge" do
 end
 
 describe EmailGraph, "#intersect_vertex!" do
+
+  puts 'EmailGraph #intersect_vertex!'
+
   # Original graph
   graph1 = EmailGraph.new
 
@@ -77,17 +86,21 @@ describe EmailGraph, "#intersect_vertex!" do
   e3 = graph2.find_or_create_edge(v2, v3, 'sent')
   
   # Graphs are ready - now intersect them and inspect the result.
-  node1.out_e.count.should == 2
-  graph1.intersect_vertex! node1, v1, 'address'
-  node1.out_e.count.should == 1
+  it "should intersect vertices and their edges" do
+     node1.out_e.count.should == 2
+     graph1.intersect_vertex! node1, v1, 'address'
+     node1.out_e.count.should == 1
   
-  node1.properties.size.should == 2
-  node1['type'].should == 'email'
-  node1['address'].should == 'russell.jurney@gmail.com' 
-  
+     node1.properties.size.should == 2
+     node1['type'].should == 'email'
+     node1['address'].should == 'russell.jurney@gmail.com'
+  end  
 end
 
 describe EmailGraph, "#intersect!" do
+
+  puts 'EmailGraph #intersect!'
+
   # Original graph
   graph1 = EmailGraph.new
 
@@ -97,7 +110,6 @@ describe EmailGraph, "#intersect!" do
   edge1 = graph1.find_or_create_edge(node1, node2, 'sent', {:volume => 2})
   edge2 = graph1.find_or_create_edge(node1, node3, 'sent', {:volume => 3})
   edge3 = graph1.find_or_create_edge(node2, node1, 'sent', {:volume => 4})
-  edge1['volume'] = 2
   
   # Graph to interset
   graph2 = EmailGraph.new
@@ -108,39 +120,52 @@ describe EmailGraph, "#intersect!" do
   e2 = graph2.find_or_create_edge(v1, v3, 'sent', {:volume => 5})
   e3 = graph2.find_or_create_edge(v2, v3, 'sent', {:volume => 6})
   
-  # Graphs are ready - now intersect them and inspect the result.
-  graph1.e.count.should == 3
-  graph1.v.count.should == 3
+  it "should intersect two graphs" do
+    # Graphs are ready - now intersect them and inspect the result.
+    graph1.e.count.should == 3
+    graph1.v.count.should == 3
   
-  graph1.intersect! graph2, 'address'
+    graph1.intersect! graph2, 'address'
   
-  graph1.e.count.should == 1
-  graph1.v.count.should == 2
+    graph1.e.count.should == 1
+    graph1.v.count.should == 2
   
-  graph1.e.first['volume'].should === 6
-  
-  puts graph1.to_json
-  
+    graph1.e.first['volume'].should === 6
+  end
 end
 
-describe EmailGraph, "union_vertex!" do
+describe EmailGraph, "#union_vertex!" do
+
+  puts 'EmailGraph #union_vertex!'
+
   # Original graph
   graph1 = EmailGraph.new
 
   node1 = graph1.create_vertex({:type => 'email', :address => 'russell.jurney@gmail.com', :network => 'foo@bar.com'})
   node2 = graph1.create_vertex({:type => 'email', :address => 'kate.jurney@gmail.com', :network => 'foo@bar.com'})
   node3 = graph1.create_vertex({:type => 'email', :address => 'jurney@gmail.com', :network => 'foo@bar.com'})
-  edge1 = graph1.find_or_create_edge(node1, node2, 'sent')
-  edge2 = graph1.find_or_create_edge(node1, node3, 'sent')
-  edge3 = graph1.find_or_create_edge(node2, node1, 'sent')
+  edge1 = graph1.find_or_create_edge(node1, node2, 'sent', {:volume => 2})
+  edge2 = graph1.find_or_create_edge(node1, node3, 'sent', {:volume => 3})
+  edge3 = graph1.find_or_create_edge(node2, node1, 'sent', {:volume => 4})
   
   # Graph to interset
   graph2 = EmailGraph.new
   v1 = graph2.create_vertex({:type => 'email', :address => 'russell.jurney@gmail.com', :network => 'bob@toolkit.com'})
   v2 = graph2.create_vertex({:type => 'email', :address => 'kate.jurney@gmail.com', :network => 'bob@toolkit.com'})
   v3 = graph2.create_vertex({:type => 'email', :address => 'billy@go.com', :network => 'bob@toolkit.com'})
-  e1 = graph2.find_or_create_edge(v1, v2, 'sent')
-  e2 = graph2.find_or_create_edge(v1, v3, 'sent')
-  e3 = graph2.find_or_create_edge(v2, v3, 'sent')
+  e1 = graph2.find_or_create_edge(v1, v2, 'sent', {:volume => 4})
+  e2 = graph2.find_or_create_edge(v1, v3, 'sent', {:volume => 5})
+  e3 = graph2.find_or_create_edge(v2, v3, 'sent', {:volume => 6})
 
+  # Graphs are ready - now union nodes and inspect the result.
+  it "should union vertices" do
+    node1.out_e.count.should == 2
+    new_node, out_es = graph1.union_vertex! node1, v1, 'address'
+    out_es.count.should === v1.out_e.count
+    new_node.out_e.count.should == node1.out_e.count
+  
+    node1.properties.size.should == 3
+    node1['type'].should == 'email'
+    node1['address'].should == 'russell.jurney@gmail.com' 
+  end
 end
