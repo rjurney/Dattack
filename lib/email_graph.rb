@@ -29,13 +29,14 @@ class EmailGraph < Pacer::TinkerGraph
         if e and e.in_v
           e.in_v.each do |inv| 
             if inv.equals? to
-              return e
+              return e, true
             end
           end
         end
       end
     end
     e = self.create_edge(nil, from, to, label, properties)
+    return e, false
   end
   
   # Intersect two graphs using the value of unique_key to compare nodes
@@ -65,6 +66,7 @@ class EmailGraph < Pacer::TinkerGraph
       if search.count > 0
         v1 = search.first
         new_v1, old_edges = g1.union_vertex! v1, v2, unique_key
+        new_v1['network'] = 'shared' #hack!
         all_edges += old_edges
       else
         new_v2 = g1.find_or_create_vertex v2.properties, v2[unique_key]
@@ -73,9 +75,13 @@ class EmailGraph < Pacer::TinkerGraph
         all_edges += old_edges
       end
     end
+    
     # All nodes at the end of new edges having been created, now create the new edges
-    all_edges.each do |edge|
-      g1.find_or_create_edge(g1.v(unique_key => edge.out_v.first[unique_key]).first, g1.v(unique_key => edge.in_v.first[unique_key]).first, edge.label, edge.properties)
+    all_edges.each do |edge|      
+      new_edge, status = g1.find_or_create_edge(g1.v(unique_key => edge.out_v.first[unique_key]).first, g1.v(unique_key => edge.in_v.first[unique_key]).first, edge.label, edge.properties)
+	    if status === true
+	       new_edge['volume'] = (new_edge['volume'].to_i||0) + (edge['volume'].to_i||0)
+	    end
     end
     g1
   end
