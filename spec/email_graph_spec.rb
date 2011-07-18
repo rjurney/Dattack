@@ -169,3 +169,32 @@ describe EmailGraph, "#union_vertex!" do
     node1['address'].should == 'russell.jurney@gmail.com' 
   end
 end
+
+describe EmailGraph, "#union!" do
+
+  puts 'EmailGraph #union!'
+
+  # Original graph
+  graph1 = EmailGraph.new
+
+  node1 = graph1.create_vertex({:type => 'email', :address => 'russell.jurney@gmail.com', :network => 'foo@bar.com'})
+  node2 = graph1.create_vertex({:type => 'email', :address => 'kate.jurney@gmail.com', :network => 'foo@bar.com'})
+  node3 = graph1.create_vertex({:type => 'email', :address => 'jurney@gmail.com', :network => 'foo@bar.com'})
+  edge1 = graph1.find_or_create_edge(node1, node2, 'sent', {:volume => 2})
+  edge2 = graph1.find_or_create_edge(node1, node3, 'sent', {:volume => 3})
+  edge3 = graph1.find_or_create_edge(node2, node1, 'sent', {:volume => 4})
+  
+  # Graph to interset
+  graph2 = EmailGraph.new
+  v1 = graph2.create_vertex({:type => 'email', :address => 'russell.jurney@gmail.com', :network => 'bob@toolkit.com'})
+  v2 = graph2.create_vertex({:type => 'email', :address => 'kate.jurney@gmail.com', :network => 'bob@toolkit.com'})
+  v3 = graph2.create_vertex({:type => 'email', :address => 'billy@go.com', :network => 'bob@toolkit.com'})
+  e1 = graph2.find_or_create_edge(v1, v2, 'sent', {:volume => 4})
+  e2 = graph2.find_or_create_edge(v1, v3, 'sent', {:volume => 5})
+  e3 = graph2.find_or_create_edge(v2, v3, 'sent', {:volume => 6})
+
+  it "should union graphs" do
+    graph1.union! graph2, 'address'
+  end
+
+end

@@ -56,21 +56,27 @@ class EmailGraph < Pacer::TinkerGraph
   
   # Union two graphs using the value of unique_key to compare nodes
   def union!(g2, unique_key)
-    new_nodes = []
-    self.v.each do |v1|
-      search = g2.v(unique_key => v1[unique_key])
+    g1 = self  
+    all_edges = []
+    
+    # Loop through 
+    g2.v.each do |v2|
+      search = g1.v(unique_key => v2[unique_key])
       if search.count > 0
-        v2 = search.first
-        self.union_vertex! v1, v2, unique_key
+        v1 = search.first
+        new_v1, old_edges = g1.union_vertex! v1, v2, unique_key
+        all_edges += old_edges
       else
-        new_v2 = self.find_or_create_vertex v2.properties, v2[unique_key]
-        new_nodes << [new_v2, v2.out_e]
+        new_v2 = g1.find_or_create_vertex v2.properties, v2[unique_key]
+        old_edges = v2.out_e.each {|e| e}
+        all_edges += old_edges
       end
     end
     # All nodes at the end of new edges having been created, now create the new edges
-    new_nodes.each do |new_v2, out_edges|
-    
+    all_edges.each do |edge|
+      g1.find_or_create_edge(g1.v(unique_key => edge.out_v.first[unique_key]).first, g1.v(unique_key => edge.in_v.first[unique_key]).first, edge.label, edge.properties)
     end
+    g1
   end
   
   # Merge node properties and return new edges to merge
