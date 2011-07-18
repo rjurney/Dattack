@@ -19,7 +19,7 @@ class EmailGraph < Pacer::TinkerGraph
   #
   # Example Usage: graph.find_or_create_edge from, cc, :sent
   #
-  def find_or_create_edge(from, to, label)
+  def find_or_create_edge(from, to, label, properties={})
     # Does the edge exist?
     edge = from.out_e label
     
@@ -36,6 +36,8 @@ class EmailGraph < Pacer::TinkerGraph
       end
     end
     e = self.create_edge(nil, from, to, label)
+    e.properties = properties
+    e
   end
   
   # Intersect two graphs using the value of unique_key to compare nodes
@@ -56,7 +58,15 @@ class EmailGraph < Pacer::TinkerGraph
   
   # Union two graphs using the value of unique_key to compare nodes
   def union!(g2, unique_key)
-    
+    self.v.each do |v1|
+      search = g2.v(unique_key => v1[unique_key])
+      if search.count > 0
+        v2 = search.first
+        self.intersect_vertex! v1, v2, unique_key
+      else
+        nuked << v1
+      end
+    end
   end
   
   # Merge node properties and return new edges to merge
@@ -92,11 +102,49 @@ class EmailGraph < Pacer::TinkerGraph
     v1
   end
   
+  def union_vertex!(v1, v2, unique_key)
+    raise Exception.new("v1 must belong to this graph!") unless v1.graph === self
+        
+    # Merge properties
+    v1.properties = union_hash v1.properties, v2.properties
+    
+    misses = []
+    # Merge edges
+    v1.out_e.each do |e1|
+       miss = true
+       v2.out_e.each do |e2|
+          if e1.out_v.first[unique_key] === e2.out_v.first[unique_key]
+             if e1.in_v.first[unique_key] === e2.in_v.first[unique_key]
+                puts "Match on #{e1.out_v.first[unique_key]} <-> #{e1.in_v.first[unique_key]}"
+                volume = (e1['volume']||0) + (e2['volume']||0)
+          	    e1.properties = union_hash e1.properties, e2.properties
+          	    e1['volume'] = volume
+          	    miss = false
+                break
+             end
+          end
+       end
+       if miss == true
+          misses << v2
+       end      
+    end
+    
+    misses.each do |e|
+       v1.add_edge nil, e.out_
+    end
+    
+    v1
+  end
+  
   def intersect_hash(hash1, hash2)
     intersection = hash1.keys & hash2.keys
     c = hash1.dup.update(hash2)
     inter = {}
     intersection.each {|k| inter[k]=c[k] }
     inter
+  end
+  
+  def union_hash(hash1, hash2)
+    hash1 + hash2
   end
 end

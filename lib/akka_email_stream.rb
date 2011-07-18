@@ -22,7 +22,7 @@ end
 # The Poll actor queries SQS every second or two (fallback strategy later), and stashes the emails it pulls in redis
 # before notifying a parser to parse the email.
 class SQSPollActor < Akka::UntypedActor
-  attr_reader :sqs, :queue, :redis
+  attr_reader :sqs, :queue
 
   def self.create(*args)
     self.new(*args)
@@ -32,8 +32,8 @@ class SQSPollActor < Akka::UntypedActor
      @sqs = RightAws::SqsGen2.new(ENV['AWS_ACCESS_KEY_ID'], ENV['AWS_SECRET_ACCESS_KEY'])
      @queue = RightAws::SqsGen2::Queue.new(@sqs, 'kontexa_test')
      
-     redis_uri = URI.parse(ENV["REDISTOGO_URL"])
-     @redis = Redis.new(:host => redis_uri.host, :port => redis_uri.port, :password => redis_uri.password)
+    # redis_uri = URI.parse(ENV["REDISTOGO_URL"])
+    # @redis = Redis.new(:host => redis_uri.host, :port => redis_uri.port, :password => redis_uri.password)
   end
   
   def start
