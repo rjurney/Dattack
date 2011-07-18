@@ -35,9 +35,7 @@ class EmailGraph < Pacer::TinkerGraph
         end
       end
     end
-    e = self.create_edge(nil, from, to, label)
-    e.properties = properties
-    e
+    e = self.create_edge(nil, from, to, label, properties)
   end
   
   # Intersect two graphs using the value of unique_key to compare nodes

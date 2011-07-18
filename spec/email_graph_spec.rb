@@ -95,8 +95,8 @@ describe EmailGraph, "#intersect!" do
   node2 = graph1.create_vertex({:type => 'email', :address => 'kate.jurney@gmail.com'})
   node3 = graph1.create_vertex({:type => 'email', :address => 'jurney@gmail.com'})
   edge1 = graph1.find_or_create_edge(node1, node2, 'sent', {:volume => 2})
-  edge2 = graph1.find_or_create_edge(node1, node3, 'sent', {:volume => 2})
-  edge3 = graph1.find_or_create_edge(node2, node1, 'sent', {:volume => 2})
+  edge2 = graph1.find_or_create_edge(node1, node3, 'sent', {:volume => 3})
+  edge3 = graph1.find_or_create_edge(node2, node1, 'sent', {:volume => 4})
   edge1['volume'] = 2
   
   # Graph to interset
@@ -105,8 +105,8 @@ describe EmailGraph, "#intersect!" do
   v2 = graph2.create_vertex({:type => 'email', :address => 'kate.jurney@gmail.com'})
   v3 = graph2.create_vertex({:type => 'email', :address => 'billy@go.com'})
   e1 = graph2.find_or_create_edge(v1, v2, 'sent', {:volume => 4})
-  e2 = graph2.find_or_create_edge(v1, v3, 'sent', {:volume => 4})
-  e3 = graph2.find_or_create_edge(v2, v3, 'sent', {:volume => 4})
+  e2 = graph2.find_or_create_edge(v1, v3, 'sent', {:volume => 5})
+  e3 = graph2.find_or_create_edge(v2, v3, 'sent', {:volume => 6})
   
   # Graphs are ready - now intersect them and inspect the result.
   graph1.e.count.should == 3
