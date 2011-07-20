@@ -1,2 +1,2 @@
 #!/bin/bash
-CLASSPATH=./vendor:./vendor/akka_2.8.0-0.10.jar:./vendor/akka-core_2.8.0-0.10.jar:./vendor/scala-library.jar jruby -Ilib $1
+CLASSPATH=./lib/java/akka/:./lib/java/akka/akka_2.8.0-0.10.jar:./lib/java/akka/akka-core_2.8.0-0.10.jar:./lib/java/akka/scala-library.jar jruby -Ilib $1
