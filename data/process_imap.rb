@@ -59,18 +59,14 @@ folders = ['[Gmail]/All Mail']
 
 # Import all in-mail and all out-mail
 folders.each do |folder|
-  
   imap.examine(folder) # examine is read only  
   messages = imap.search(['ALL'])
-  puts messages.size
   
   resume_id = graph_client.voldemort.get "resume_id:#{USERKEY}"
   resume_id = resume_id.to_i - 1
-  puts resume_id
   if resume_id
     messages = messages[resume_id..-1]
   end
-  puts messages.size
   
   messages.each do |message_id|
     # Trap ctrl-c to persist
