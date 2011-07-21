@@ -38,9 +38,6 @@ USERKEY = PREFIX + USERNAME
 graph_client = GraphClient.new ENV['VOLDEMORT_STORE'], ENV['VOLDEMORT_ADDRESS']
 graph = EmailGraph.new
 
-# Flush the user's imap records
-graph_client.del USERKEY
-
 # Trap ctrl-c
 interrupted = false
 trap("SIGINT") { interrupted = true }
@@ -63,9 +60,12 @@ folders.each do |folder|
   messages = imap.search(['ALL'])
   
   resume_id = graph_client.voldemort.get "resume_id:#{USERKEY}"
-  resume_id = resume_id.to_i - 1
+  resume_id = [(resume_id.to_i - 1), 0].max
   if resume_id
     messages = messages[resume_id..-1]
+  else
+    # Flush the user's imap records
+    graph_client.del USERKEY
   end
   
   messages.each do |message_id|
