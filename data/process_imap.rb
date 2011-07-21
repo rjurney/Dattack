@@ -51,20 +51,31 @@ count = 1
 imap = Net::IMAP.new('imap.gmail.com',993,true)
 imap.login(USERNAME, PASSWORD)
 
-skipped_ids = {}
+skipped_ids = []
+last_id = nil
 
-boxes = []
+# Temporary, gmail only
+folders = ['[Gmail]/All Mail']
 
 # Import all in-mail and all out-mail
-['[Gmail]/All Mail'].each do |folder|
-  skipped_ids[folder] = []
+folders.each do |folder|
   
-  imap.examine(folder) # examine is read only
-  imap.search(['ALL']).each do |message_id|
+  imap.examine(folder) # examine is read only  
+  messages = imap.search(['ALL'])
+  puts messages.size
   
+  resume_id = graph_client.voldemort.get "resume_id:#{USERKEY}"
+  resume_id = resume_id.to_i - 1
+  puts resume_id
+  if resume_id
+    messages = messages[resume_id..-1]
+  end
+  puts messages.size
+  
+  messages.each do |message_id|
     # Trap ctrl-c to persist
     if interrupted
-      save_state(graph, USERKEY, graph_client)
+      save_state(graph, USERKEY, graph_client, message_id)
       exit
     end
   
@@ -74,12 +85,14 @@ boxes = []
       from_addresses = mail.header['from'].addrs
       to_addresses = mail.header['to'].addrs
     rescue Exception => e
-        puts e.message
+      skipped_ids << message_id
+      puts e.message
       next
     end
     
     unless from_addresses
       puts "Skipped email without a from address!"
+      skipped_ids << message_id
       next
     end
     
@@ -134,8 +147,18 @@ boxes = []
       end
       
     rescue Exception => e
-      puts "Exception parsing email: #{e.message}}"
+      puts "Exception parsing email: #{e.class} #{e.message}}"
+      skipped_ids << message_id
+    # Temporary thing to get the class of the 'end of file reached' error that prints
+    # After I find the class of the Error, I will handle it and re-initialize the IMAP
+    # connection.
+    rescue Error => e
+      puts "Error parsing email: #{e.class} #{e.message}"
+      exit
     end
     count += 1
   end
 end
+
+# Final save!
+save_state(graph, USERKEY, graph_client, nil)
