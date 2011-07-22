@@ -57,8 +57,8 @@ describe EmailGraph, "#find_or_create_edge" do
   
   it "should return an existing edge" do
     edge3, status = graph.find_or_create_edge(from, to, 'sent')
-    puts edge3.to_json
-    puts edge1.to_json
+    #puts edge3.to_json
+    #puts edge1.to_json
     (edge3.eql? edge1).should == true
     edge3.should_not == edge2
     status.should === true
