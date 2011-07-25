@@ -57,7 +57,7 @@ get "/" do
 	  else
 	    STDERR.puts "could not get email: #{response.inspect}"
 	  end
-	  haml :index
+	  erb :index
   else
 	  '<a href="/request">Sign On</a>'
   end
