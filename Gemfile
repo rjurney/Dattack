@@ -10,8 +10,11 @@ gem 'voldemort-rb'
 gem 'memcache'
 gem 'tmail'
 gem 'rspec'
+gem 'oauth'
+gem 'haml'
 
 platforms :jruby do
   gem 'pacer'
   gem 'jwz_threading'
+  gem 'stemmer4jr'
 end
