@@ -12,17 +12,27 @@ class EmailSummary
     @subject = subject
     @body = body
     @stop_words = self.load_stop_words
+    @dict = self.load_dict
     @voldemort = VoldemortClient.new ENV['VOLDEMORT_STORE'], ENV['VOLDEMORT_ADDRESS']
   end
   
   def load_stop_words
     @words = []
     file = File.new("data/english.stop", "r")
-    while (line = file.gets)
+    while(line = file.gets)
       @words << line.chop
     end
     file.close
     @words
+  end
+  
+  def load_dict
+    dict = []
+    file = File.new("/usr/share/dict/words", "r")
+    while(line = file.gets)
+      dict << line.chop
+    end
+    dict
   end
   
   def summarize
@@ -30,12 +40,16 @@ class EmailSummary
     @terms.each {|term| puts term}
   end
 
-  def to_terms
+  def to_terms(terms={}, boost=1)
     # remove all non letters and reject stop words
-    terms_list = @body.gsub(/(\s|\d|\W)+/u,' ').rstrip.strip.downcase.split(' ').reject{|term|$stop_words.include?(term)}
+    terms_list = @body.gsub(/(\s|\d|\W)+/u,' ').rstrip.strip.downcase.split(' ').reject{|term|@stop_words.include?(term)}
     # transform to a hash with a frequency * boost value
-    terms_list.each do|term|
-      term = term.stem
+    
+    terms_list.each do |term|
+      # If its in the dictionary, stem it.  Otherwise leave it be, presumably its a technical term/jargon.
+      if @dict.include?(term)
+        term = term.stem if term.stem
+      end
       if terms[term]
         terms[term] = terms[term] + boost
       else
@@ -56,7 +70,7 @@ class EmailSummary
   end
   
   def df(term)
-    @voldemort.get PREFIX + term
+    @voldemort.get(PREFIX + term)
   end
   
   def match(item)
