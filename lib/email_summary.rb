@@ -1,22 +1,23 @@
 require 'stemmer' # This gives us String.stem
 require 'voldemort-rb'
 
+PREFIX = "summary:"
+
 class EmailSummary
-  attr_accessor :terms, :boost, :stop_words, :body, :voldemort
+  attr_accessor :terms, :boost, :stop_words, :body, :subject, :voldemort
   
   def initialize(subject, body)
     raise VoldemortException, "Must set ENV['VOLDEMORT_STORE'] and ENV['VOLDEMORT_ADDRESS']" \
       unless(ENV['VOLDEMORT_STORE'] && ENV['VOLDEMORT_ADDRESS'])
-    end
     @subject = subject
     @body = body
     @stop_words = self.load_stop_words
-    @voldemort = 
+    @voldemort = VoldemortClient.new ENV['VOLDEMORT_STORE'], ENV['VOLDEMORT_ADDRESS']
   end
   
   def load_stop_words
     @words = []
-    file = File.new(File.dirname(__FILE__) + "/english.stop", "r")
+    file = File.new("data/english.stop", "r")
     while (line = file.gets)
       @words << line.chop
     end
@@ -41,7 +42,7 @@ class EmailSummary
         terms[term] = boost
       end
     end
-    @terms = terms
+    terms
   end 
 
   def to_tf_idf
@@ -55,7 +56,7 @@ class EmailSummary
   end
   
   def df(term)
-  
+    @voldemort.get PREFIX + term
   end
   
   def match(item)

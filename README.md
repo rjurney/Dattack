@@ -1,7 +1,7 @@
 Summary
 -------
 
-This application reads your entire inbox via data/process_imap, and monitors your realtime inbox stream via data/process_emails.rb
+This application reads your entire inbox via lib/process_imap, and monitors your realtime inbox stream via lib/process_emails.rb
 
 Setup
 -----

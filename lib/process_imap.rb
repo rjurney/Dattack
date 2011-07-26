@@ -1,6 +1,6 @@
 # The purpose of this library is to access emails via IMAP - the Inbox and Outbox
 # 
-# Usage: jruby data/process_imap.sh <username@gmail.com> <password>
+# Usage: jruby lib/process_imap.sh <username@gmail.com> <password>
 #
 
 require 'net/imap'
