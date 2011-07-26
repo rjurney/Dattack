@@ -22,6 +22,7 @@ describe EmailSummary, "#new" do
     Joe"
     
     summarizer = EmailSummary.new subject, body
-    summarizer.summarize
+    summarizer.to_terms
+    summarizer.terms.each_pair {|term, count| STDERR.write "#{term}: #{count.to_s}, " }
   end
 end

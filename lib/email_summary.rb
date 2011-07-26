@@ -36,8 +36,8 @@ class EmailSummary
   end
   
   def summarize
-    @terms = self.to_terms
-    @terms.each {|term| puts term}
+    self.to_terms
+    
   end
 
   def to_terms(terms={}, boost=1)
@@ -56,7 +56,7 @@ class EmailSummary
         terms[term] = boost
       end
     end
-    terms
+    @terms = terms
   end 
 
   def to_tf_idf
