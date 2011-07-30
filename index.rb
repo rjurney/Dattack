@@ -50,13 +50,8 @@ end
 
 
 get "/" do
-  if @access_token
-	  response = @access_token.get('https://www.googleapis.com/userinfo/email?alt=json')
-	  if response.is_a?(Net::HTTPSuccess)
-	    @email = JSON.parse(response.body)['data']['email']
-	  else
-	    STDERR.puts "could not get email: #{response.inspect}"
-	  end
+  if @access_token and session[:email]
+    @email = session[:email]
 	  erb :index
   else
 	  '<a href="/request">Sign On</a>'
@@ -74,6 +69,16 @@ get "/auth" do
   @access_token = @request_token.get_access_token :oauth_verifier => params[:oauth_verifier]
   session[:oauth][:access_token] = @access_token.token
   session[:oauth][:access_token_secret] = @access_token.secret
+  
+  response = @access_token.get('https://www.googleapis.com/userinfo/email?alt=json')
+  if response.is_a?(Net::HTTPSuccess)
+    email = JSON.parse(response.body)['data']['email']
+    json_token = JSON([@access_token.token, @access_token.secret])
+    @redis.set 'json_token:' + email, json_token
+    session[:email] = email
+  else
+    STDERR.puts "could not get email: #{response.inspect}"
+  end
   redirect "/"
 end
 
