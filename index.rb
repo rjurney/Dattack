@@ -14,10 +14,6 @@ $KCODE = 'UTF8'
 require 'date'
 require 'date/format'
 
-@sqs = RightAws::SqsGen2.new(ENV['AWS_ACCESS_KEY_ID'], ENV['AWS_SECRET_ACCESS_KEY'])
-@queue = RightAws::SqsGen2::Queue.new(@sqs, 'kontexa_test')
-@queue.clear() # Dev only!
-
 configure do
   set :sessions, true
 end
@@ -95,6 +91,10 @@ def get_set_email(access_token)
   end
 end
 
+# @sqs = RightAws::SqsGen2.new(ENV['AWS_ACCESS_KEY_ID'], ENV['AWS_SECRET_ACCESS_KEY'])
+# @queue = RightAws::SqsGen2::Queue.new(@sqs, 'kontexa_test')
+# @queue.clear() # Dev only!
+# 
 # post '/email' do
 #   @uuid_factory = UUID.new
 #   uuid = @uuid_factory.generate
