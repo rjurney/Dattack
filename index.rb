@@ -36,9 +36,6 @@ before do
   if !session[:oauth][:access_token].nil? && !session[:oauth][:access_token_secret].nil?
 	  @access_token = OAuth::AccessToken.new(@consumer, session[:oauth][:access_token], session[:oauth][:access_token_secret])
   end
-
-  # export VOLDEMORT_STORE="kontexa"
-  # export VOLDEMORT_ADDRESS="localhost:6666"
   
   redis_uri = URI.parse(ENV["REDISTOGO_URL"])
   @redis = Redis.new(:host => redis_uri.host, :port => redis_uri.port, :password => redis_uri.password)
