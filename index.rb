@@ -42,11 +42,11 @@ before do
 end
 
 get "/" do
-  if @access_token
-	  erb :index
-	else
+  #   if @access_token
+  #   erb :index
+  # else
 	  erb :login
-  end
+  # end
 end
 
 get "/request" do
