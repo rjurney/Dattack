@@ -14,6 +14,13 @@ $KCODE = 'UTF8'
 require 'date'
 require 'date/format'
 
+@sqs = RightAws::SqsGen2.new(ENV['AWS_ACCESS_KEY_ID'], ENV['AWS_SECRET_ACCESS_KEY'])
+@queue = RightAws::SqsGen2::Queue.new(@sqs, 'kontexa_test')
+@queue.clear() # Dev only!
+
+configure do
+  set :sessions, true
+end
 enable :sessions
 
 before do
@@ -39,23 +46,17 @@ before do
 
   # export VOLDEMORT_STORE="kontexa"
   # export VOLDEMORT_ADDRESS="localhost:6666"
-
-  @sqs = RightAws::SqsGen2.new(ENV['AWS_ACCESS_KEY_ID'], ENV['AWS_SECRET_ACCESS_KEY'])
-  @queue = RightAws::SqsGen2::Queue.new(@sqs, 'kontexa_test')
-  @queue.clear() # Dev only!
-
+  
   redis_uri = URI.parse(ENV["REDISTOGO_URL"])
   @redis = Redis.new(:host => redis_uri.host, :port => redis_uri.port, :password => redis_uri.password)
-
-  @uuid_factory = UUID.new
 end
 
 get "/" do
   if @access_token
     @email = get_set_email @access_token
 	  erb :index
-  else
-	  '<a href="/request">Sign On</a>'
+	else
+	  erb :login
   end
 end
 
@@ -94,7 +95,8 @@ def get_set_email(access_token)
   end
 end
 
-# post '/email' do  
+# post '/email' do
+#   @uuid_factory = UUID.new
 #   uuid = @uuid_factory.generate
 #   puts "UUID: #{uuid}"
 #   json = JSON.generate(params)
