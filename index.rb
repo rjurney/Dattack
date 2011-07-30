@@ -82,17 +82,17 @@ get "/logout" do
   redirect "/"
 end
 
-post '/email' do  
-  uuid = @uuid_factory.generate
-  puts "UUID: #{uuid}"
-  json = JSON.generate(params)
-
-  @redis.set(uuid, json)
-  ['From', 'To', 'Cc', 'sender', 'subject', 'body-plain'].each do |key|
-    puts "###{key}##  #{params[key]}"
-  end
-  
-  # Need to put the identity of the user of the service here, reliably, somehow, appended to the uuid?
-  @queue.push uuid
-  "true"
-end
+# post '/email' do  
+#   uuid = @uuid_factory.generate
+#   puts "UUID: #{uuid}"
+#   json = JSON.generate(params)
+# 
+#   @redis.set(uuid, json)
+#   ['From', 'To', 'Cc', 'sender', 'subject', 'body-plain'].each do |key|
+#     puts "###{key}##  #{params[key]}"
+#   end
+#   
+#   # Need to put the identity of the user of the service here, reliably, somehow, appended to the uuid?
+#   @queue.push uuid
+#   "true"
+# end
