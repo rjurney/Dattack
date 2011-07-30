@@ -61,7 +61,7 @@ get "/auth" do
   session[:oauth][:access_token] = @access_token.token
   session[:oauth][:access_token_secret] = @access_token.secret
 
-  get_set_email @access_token
+  #get_set_email @access_token
 
   redirect "/"
 end
