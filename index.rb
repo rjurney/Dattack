@@ -43,7 +43,6 @@ end
 
 get "/" do
   if @access_token
-    @email = get_set_email @access_token
 	  erb :index
 	else
 	  erb :login
