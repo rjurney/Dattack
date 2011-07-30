@@ -42,6 +42,11 @@ system 'rm /tmp/email.graphml'
 
 count = 0
 
+
+# Next up: Grab the thread ID and the reply-to ID from gmail.
+# Also use reply-to instead of from, to eliminate email lists.
+# Or use both.
+
 while(true) do
   # Trap ctrl-c 
   if interrupted

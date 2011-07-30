@@ -6,11 +6,13 @@ require 'right_aws'
 require 'redis'
 require 'uuid'
 require 'uri'
-require 'jcode'
 require "oauth"
 require "oauth/consumer"
 require 'haml'
+require 'jcode'
 $KCODE = 'UTF8'
+require 'date'
+require 'date/format'
 
 enable :sessions
 
@@ -48,10 +50,9 @@ before do
   @uuid_factory = UUID.new
 end
 
-
 get "/" do
-  if @access_token and session[:email]
-    @email = session[:email]
+  if @access_token
+    @email = get_set_email @access_token
 	  erb :index
   else
 	  '<a href="/request">Sign On</a>'
@@ -69,22 +70,28 @@ get "/auth" do
   @access_token = @request_token.get_access_token :oauth_verifier => params[:oauth_verifier]
   session[:oauth][:access_token] = @access_token.token
   session[:oauth][:access_token_secret] = @access_token.secret
-  
-  response = @access_token.get('https://www.googleapis.com/userinfo/email?alt=json')
-  if response.is_a?(Net::HTTPSuccess)
-    email = JSON.parse(response.body)['data']['email']
-    json_token = JSON([@access_token.token, @access_token.secret])
-    @redis.set 'json_token:' + email, json_token
-    session[:email] = email
-  else
-    STDERR.puts "could not get email: #{response.inspect}"
-  end
+
+  get_set_email @access_token
+
   redirect "/"
 end
 
 get "/logout" do
   session[:oauth] = {}
   redirect "/"
+end
+
+def get_set_email(access_token)
+  response = access_token.get('https://www.googleapis.com/userinfo/email?alt=json')
+  if response.is_a?(Net::HTTPSuccess)
+    email = JSON.parse(response.body)['data']['email']
+    json_token = JSON({ :token => access_token.token, :secret => access_token.secret, :email => email, :date => DateTime.now.to_s })
+    @redis.set 'access_token:' + email, json_token
+    return email
+  else
+    STDERR.puts "could not get email: #{response.inspect}"
+    return nil
+  end
 end
 
 # post '/email' do  
