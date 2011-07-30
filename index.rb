@@ -14,9 +14,6 @@ $KCODE = 'UTF8'
 require 'date'
 require 'date/format'
 
-configure do
-  set :sessions, true
-end
 enable :sessions
 
 before do
