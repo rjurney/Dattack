@@ -1,2 +1,2 @@
-require 'index'
+require 'landing'
 run Sinatra::Application

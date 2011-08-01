@@ -1,0 +1,66 @@
+body {
+	font: 14px Helvetica, Arial, sans-serif;
+	letter-spacing: .07em;
+	line-height: 1.5em;
+}
+body > div { vertical-align: top }
+
+div#beta {
+	text-align: center;
+	vertical-align: top;
+	padding-top: 6em;
+}
+img#logo {
+	margin: 3em;
+	display: inline-block;
+	vertical-align: top;
+}
+div#form {
+	display: inline-block;
+	text-align: left;
+	margin: 3em;
+	padding-top: 34px;
+	vertical-align: top;
+}
+div#beta form label {
+	display: block;
+	margin-top: 2.5em;
+	margin-bottom: .6em;
+	color: #666;
+}
+
+div#beta form img {
+	display: block;
+}
+div#beta form input {
+	display: block;
+}
+div#beta form input[type=text] {
+	width: 20em;
+	font-size: 140%;
+	-webkit-border-radius: 8px;
+	-moz-border-radius: 8px;
+	padding: .25em;
+	background-color: #eee;
+}
+
+div#beta form input[type=submit] {
+	padding: .5em 2em;
+	color: white;
+	font: 13px Helvetica, Arial, sans-serif;
+	font-weight: bold;
+	margin-top: 2.5em;
+	font-size: 120%;
+	
+	-webkit-border-radius: 8px;
+	-moz-border-radius: 8px;
+	-webkit-box-shadow: 2px 2px 6px #c2c2c2;
+}
+
+.blue {
+	background-color: #2a8ebf;
+}
+
+.green {
+	background-color: #74b71b;
+}
