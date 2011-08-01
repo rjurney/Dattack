@@ -75,13 +75,17 @@ get "/auth" do
   @access_token = @request_token.get_access_token :oauth_verifier => params[:oauth_verifier]
   session[:oauth][:access_token] = @access_token.token
   session[:oauth][:access_token_secret] = @access_token.secret
+  
+  json_token = JSON({ :token => access_token.token, :secret => access_token.secret, :email => email, :date => DateTime.now.to_s })
+  redis.set 'access_token:' + email, json_token
+  
   redirect "/"
 end
 
-# get "/logout" do
-#   session[:oauth] = {}
-#   redirect "/"
-# end
+get "/logout" do
+  session[:oauth] = {}
+  redirect "/"
+end
 
 def is_valid?(email)
   begin
