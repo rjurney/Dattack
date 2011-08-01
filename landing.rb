@@ -75,9 +75,16 @@ get "/auth" do
   @access_token = @request_token.get_access_token :oauth_verifier => params[:oauth_verifier]
   session[:oauth][:access_token] = @access_token.token
   session[:oauth][:access_token_secret] = @access_token.secret
-  
-  json_token = JSON({ :token => access_token.token, :secret => access_token.secret, :email => email, :date => DateTime.now.to_s })
-  redis.set 'access_token:' + email, json_token
+
+  response = @access_token.get('https://www.googleapis.com/userinfo/email?alt=json')
+  if response.is_a?(Net::HTTPSuccess)
+    @email = JSON.parse(response.body)['data']['email']
+  else
+    STDERR.puts "could not get email: #{response.inspect}"
+  end
+
+  json_token = JSON({ :token => @access_token.token, :secret => @access_token.secret, :email => @email, :date => DateTime.now.to_s })
+  redis.set "access_token:#{@email}", json_token
   
   redirect "/"
 end
