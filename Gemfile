@@ -12,6 +12,7 @@ gem 'tmail'
 gem 'rspec'
 gem 'oauth'
 gem 'haml'
+gem 'oauth'
 
 platforms :jruby do
   gem 'pacer'
