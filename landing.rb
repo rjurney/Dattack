@@ -92,7 +92,7 @@ get "/auth" do
 end
 
 get "/logout" do
-  session[:oauth] = {}
+  session[:oauth] = nil
   redirect "/"
 end
 
