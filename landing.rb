@@ -65,6 +65,7 @@ post "/signup" do
   email = params[:email]
   if is_valid? email
     @request_token = @consumer.get_request_token(:oauth_callback => "#{request.scheme}://#{request.host}:#{request.port}/auth")
+    puts "Request token: #{@request_token.token} #{@request_token.secret}"
     session[:oauth][:request_token] = @request_token.token
     session[:oauth][:request_token_secret] = @request_token.secret
     redirect @request_token.authorize_url
@@ -92,7 +93,7 @@ get "/auth" do
 end
 
 get "/logout" do
-  session[:oauth] = nil
+  session[:oauth] = {}
   redirect "/"
 end
 
