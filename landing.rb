@@ -38,10 +38,12 @@ before do
   
   if !session[:oauth][:request_token].nil? && !session[:oauth][:request_token_secret].nil?
 	  @request_token = OAuth::RequestToken.new(@consumer, session[:oauth][:request_token], session[:oauth][:request_token_secret])
+    STDERR.puts "Setting request token"
   end
   
   if !session[:oauth][:access_token].nil? && !session[:oauth][:access_token_secret].nil?
 	  @access_token = OAuth::AccessToken.new(@consumer, session[:oauth][:access_token], session[:oauth][:access_token_secret])
+    STDERR.puts "Setting request token"
   end
 end
 
