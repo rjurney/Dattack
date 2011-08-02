@@ -43,7 +43,7 @@ before do
   
   if !session[:oauth][:access_token].nil? && !session[:oauth][:access_token_secret].nil?
 	  @access_token = OAuth::AccessToken.new(@consumer, session[:oauth][:access_token], session[:oauth][:access_token_secret])
-    STDERR.puts "Setting request token"
+    STDERR.puts "Setting access token"
   end
 end
 
