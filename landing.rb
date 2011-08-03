@@ -19,6 +19,8 @@ require 'date'
 require 'date/format'
 module Kontexa
   class Kontexa::HomePage < Sinatra::Base
+    register Sinatra::Cache
+    #use Rack::Session::Redis, :redis_server => ENV["REDISTOGO_URL"]
 
     # Sinatra setup
     set :static, true
@@ -26,8 +28,6 @@ module Kontexa
     set :public, File.dirname(__FILE__) + '/static'
     set :views, File.dirname(__FILE__) + '/views'
     set :sessions, true # Using redis sessions to span heroku instances
-    # register Sinatra::Cache
-    # use Rack::Session::Redis, :redis_server => ENV["REDISTOGO_URL"]
 
     # Object persistence setup
     redis_uri = URI.parse(ENV["REDISTOGO_URL"])
