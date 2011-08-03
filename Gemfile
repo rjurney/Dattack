@@ -13,6 +13,7 @@ gem 'rspec'
 gem 'oauth'
 gem 'haml'
 gem 'oauth'
+gem 'redis-store'
 
 platforms :jruby do
   gem 'pacer'
