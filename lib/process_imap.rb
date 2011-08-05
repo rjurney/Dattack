@@ -11,6 +11,8 @@ require 'lib/graph_client'
 require 'lib/email_graph'
 require 'lib/util'
 require 'jcode'
+require 'redis'
+require 'gmail_xoauth'
 
 $KCODE = 'UTF8'
 
@@ -19,10 +21,10 @@ unless(ARGV[0] || ENV['GMAIL_USERNAME'])
   exit
 end
 
-unless(ARGV[1] || ENV['GMAILPASS'])
-  puts "Must supply gmail password as 2nd argument, or set ENV['GMAILPASS']"
-  exit
-end
+# unless(ARGV[1] || ENV['GMAILPASS'])
+#   puts "Must supply gmail password as 2nd argument, or set ENV['GMAILPASS']"
+#   exit
+# end
 
 unless(ENV['VOLDEMORT_STORE'] && ENV['VOLDEMORT_ADDRESS'])
   puts "Must set ENV['VOLDEMORT_STORE'] and ENV['VOLDEMORT_ADDRESS']"
@@ -31,7 +33,7 @@ end
 
 PREFIX = "imap:"
 USERNAME = ARGV[0] || ENV['GMAIL_USERNAME']
-PASSWORD = ARGV[1] || ENV['GMAILPASS']
+#PASSWORD = ARGV[1] || ENV['GMAILPASS']
 USERKEY = PREFIX + USERNAME
 
 # Graph and persistence in Voldemort
@@ -44,9 +46,23 @@ trap("SIGINT") { interrupted = true }
 
 count = 1
 
+# Setup redis
+redis_uri = URI.parse(ENV["REDISTOGO_URL"])
+redis = Redis.new(:host => redis_uri.host, :port => redis_uri.port, :password => redis_uri.password)
+
 # Account setup
-imap = Net::IMAP.new('imap.gmail.com',993,true)
-imap.login(USERNAME, PASSWORD)
+imap = Net::IMAP.new('imap.gmail.com', 993, usessl = true, certs = nil, verify = false)
+consumer_key = ENV["CONSUMER_KEY"] || ENV["consumer_key"]
+consumer_secret = ENV["CONSUMER_SECRET"] || ENV["consumer_secret"]
+token_json = redis.get 'access_token:' + USERNAME
+token = JSON token_json
+imap.authenticate('XOAUTH', USERNAME,
+  :consumer_key => consumer_key,
+  :consumer_secret => consumer_secret,
+  :token => token['token'],
+  :token_secret => token['secret']
+)
+#imap.login(USERNAME, PASSWORD)
 
 skipped_ids = []
 last_id = nil
