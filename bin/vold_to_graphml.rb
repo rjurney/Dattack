@@ -5,12 +5,12 @@ require 'jcode'
 $KCODE = 'UTF8'
 require 'optparse'
 
-unless ARGV[0] and ARGV[1]
+unless ARGV[0]
   puts "Usage: bin/vold_to_graphml <voldemort_email_key>, <output_directory>"
   exit
 end
 
-USERKEY = ARGV[0]; OUT_DIRECTORY = ARGV[1]
+USERKEY = ARGV[0]; OUT_DIRECTORY = ARGV[1] || '/tmp/'
 
 # Graph and persistence in Voldemort
 graph_client = GraphClient.new ENV['VOLDEMORT_STORE'], ENV['VOLDEMORT_ADDRESS']
