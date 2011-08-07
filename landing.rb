@@ -102,6 +102,10 @@ module Kontexa
       session[:oauth] = {}
       redirect "/"
     end
+    
+    get "/demo" do
+      redirect "/demo/index.html"
+    end
 
     def is_valid?(email)
       begin
