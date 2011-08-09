@@ -1,7 +1,11 @@
 Steps to automate graphs in gephi:
 
+# Scrape the imap inbox
 jruby lib/process_imap <email>
+# Dump to graphml
 bin/vold_to_graphml.rb <email>
+
+# Use Gephi to render, filter and and export the network
 Gephi -> Import /tmp/imap:<email>.graphml
 Gephi -> Data Table -> Copy node 'address' field to 'Label' field (or fix in JSON!)
 Gephi -> Data Table -> Copy edge 'volume' field to 'Weight' field (or fix in JSON!)
@@ -16,4 +20,7 @@ Gephi -> Overview -> Layout -> Label Adjust (Speed 5.0) x 2 (run this step twice
 Gephi -> Preview -> Preview Settings -> Presets (Kontexa)
 Gephi -> Preview -> Export: SVG/PDF/PNG -> File Format (PNG) -> Options -> Resolution (9046 x 9046) -> Filename (<email>.png)
 mkdir <image_dir><email>_seadragon/ (ex: mkdir ~/Dropbox/Startup/Data\ Images/Alpha\ Test/Jay_seadragon)
-Gephi -> File -> Export -> Seadragon Web -> 
+Gephi -> File -> Export -> Seadragon Web (Width: 8192, Height: 6144, Tile Size: 256, Margins: Top/Left/Right/Bottom: 100)
+
+# Overlay the logo
+composite -gravity southeast -geometry 1024x1024+300+200  gephi/logo-almostfinal-512trans.png ~/Dropbox/Startup/Data\ Images/Alpha\ Test/JayVarner.png out.png
