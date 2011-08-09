@@ -22,5 +22,5 @@ Gephi -> Preview -> Export: SVG/PDF/PNG -> File Format (PNG) -> Options -> Resol
 mkdir <image_dir><email>_seadragon/ (ex: mkdir ~/Dropbox/Startup/Data\ Images/Alpha\ Test/Jay_seadragon)
 Gephi -> File -> Export -> Seadragon Web (Width: 8192, Height: 6144, Tile Size: 256, Margins: Top/Left/Right/Bottom: 100)
 
-# Overlay the logo
-composite -gravity southeast -geometry 1024x1024+300+200  gephi/logo-almostfinal-512trans.png ~/Dropbox/Startup/Data\ Images/Alpha\ Test/JayVarner.png out.png
+# Overlay the logo - from Dattack/
+composite -gravity southeast -geometry 1024x1024+300+200  gephi/logo-almostfinal-512trans.png ~/Dropbox/Startup/Data\ Images/Alpha\ Test/JayVarner.png gephi/out.png

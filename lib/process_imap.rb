@@ -62,7 +62,6 @@ imap.authenticate('XOAUTH', USERNAME,
   :token => token['token'],
   :token_secret => token['secret']
 )
-#imap.login(USERNAME, PASSWORD)
 
 skipped_ids = []
 last_id = nil
@@ -164,9 +163,20 @@ folders.each do |folder|
     # Temporary thing to get the class of the 'end of file reached' error that prints
     # After I find the class of the Error, I will handle it and re-initialize the IMAP
     # connection.
-    rescue Error => e
+    rescue EOFError => e
       puts "Error parsing email: #{e.class} #{e.message}"
-      exit
+      skipped_ids << message_id
+      imap = Net::IMAP.new('imap.gmail.com', 993, usessl = true, certs = nil, verify = false)
+      consumer_key = ENV["CONSUMER_KEY"] || ENV["consumer_key"]
+      consumer_secret = ENV["CONSUMER_SECRET"] || ENV["consumer_secret"]
+      token_json = redis.get 'access_token:' + USERNAME
+      token = JSON token_json
+      imap.authenticate('XOAUTH', USERNAME,
+        :consumer_key => consumer_key,
+        :consumer_secret => consumer_secret,
+        :token => token['token'],
+        :token_secret => token['secret']
+      )
     end
     count += 1
   end
