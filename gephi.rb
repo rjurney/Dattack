@@ -8,8 +8,11 @@ java_import org.gephi.project.api.ProjectController
 java_import org.gephi.data.attributes.api.AttributeController
 java_import org.gephi.graph.api.GraphController
 java_import org.gephi.io.importer.api.ImportController
+java_import org.gephi.io.importer.api.EdgeDefault
+
 java_import org.gephi.io.processor.plugin.DefaultProcessor
 java_import org.gephi.statistics.plugin.PageRank
+
 java_import java.util.Arrays
 java_import java.util.Comparator
 java_import java.lang.Float
@@ -41,6 +44,7 @@ inputFile = java.io.File.new(ARGV[0])
 puts "Import file '#{ARGV[0]}'"
 importController = getImportController
 container = importController.importFile(inputFile)
+container.getLoader().setEdgeDefault(EdgeDefault.DIRECTED);
 importController.process(container, DefaultProcessor.new, workspace)
 
 #Get models

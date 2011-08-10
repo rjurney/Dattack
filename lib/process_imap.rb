@@ -177,6 +177,10 @@ folders.each do |folder|
         :token => token['token'],
         :token_secret => token['secret']
       )
+      imap.examine(folder) # examine is read only  
+      messages = imap.search(['ALL'])
+    rescue Error => e
+      next
     end
     count += 1
   end
