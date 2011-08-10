@@ -59,7 +59,7 @@ module Kontexa
     end
 
     get "/" do
-      if @access_token
+      if @access_token or (session[:oauth][:access_token] and session[:oauth][:access_token_secret])
         response = @access_token.get('https://www.googleapis.com/userinfo/email?alt=json')
         if response.is_a?(Net::HTTPSuccess)
           @email = JSON.parse(response.body)['data']['email']
@@ -87,6 +87,10 @@ module Kontexa
     end
 
     get "/auth" do
+      unless @access_token and @request_token
+        STDERR.puts "Did not have access_token and request_token.  Redirecting to /"
+        redirect "/"
+      end
       @access_token = @request_token.get_access_token :oauth_verifier => params[:oauth_verifier]
       session[:oauth][:access_token] = @access_token.token
       session[:oauth][:access_token_secret] = @access_token.secret
@@ -115,8 +119,5 @@ module Kontexa
         false
       end
     end
-  
-    # start the server if ruby file executed directly
-    run! if app_file == $0
   end
 end
