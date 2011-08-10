@@ -14,12 +14,13 @@ img#logo {
 	margin: 3em;
 	display: inline-block;
 	vertical-align: top;
+	padding-top: 30px;
 }
 div#form {
 	display: inline-block;
 	text-align: left;
 	margin: 3em;
-	padding-top: 34px;
+	padding-top: 10px;
 	vertical-align: top;
 }
 div#beta form label {

@@ -20,7 +20,7 @@ graph = EmailGraph.new
 
 (tmp_graph = graph_client.get USERKEY).nil? ? graph : graph = tmp_graph
 
-graph.k_core! K
+graph.k_core! K.to_i
 
 # Write to graphml
 graph.export "#{OUT_DIRECTORY}/#{USERKEY}-#{K}-core.graphml"

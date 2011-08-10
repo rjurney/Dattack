@@ -179,7 +179,24 @@ folders.each do |folder|
       )
       imap.examine(folder) # examine is read only  
       messages = imap.search(['ALL'])
+    rescue IOError => e
+      puts "Error parsing email: #{e.class} #{e.message}"
+      skipped_ids << message_id
+      imap = Net::IMAP.new('imap.gmail.com', 993, usessl = true, certs = nil, verify = false)
+      consumer_key = ENV["CONSUMER_KEY"] || ENV["consumer_key"]
+      consumer_secret = ENV["CONSUMER_SECRET"] || ENV["consumer_secret"]
+      token_json = redis.get 'access_token:' + USERNAME
+      token = JSON token_json
+      imap.authenticate('XOAUTH', USERNAME,
+        :consumer_key => consumer_key,
+        :consumer_secret => consumer_secret,
+        :token => token['token'],
+        :token_secret => token['secret']
+      )
+      imap.examine(folder) # examine is read only  
+      messages = imap.search(['ALL'])  
     rescue Error => e
+      puts "GENERAL ERROR CAUGHT: #{e.class} #{e.message}"
       next
     end
     count += 1

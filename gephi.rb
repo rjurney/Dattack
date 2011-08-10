@@ -44,7 +44,7 @@ inputFile = java.io.File.new(ARGV[0])
 puts "Import file '#{ARGV[0]}'"
 importController = getImportController
 container = importController.importFile(inputFile)
-container.getLoader().setEdgeDefault(EdgeDefault.DIRECTED);
+container.getLoader().setEdgeDefault(EdgeDefault.valueOf("DIRECTED"));
 importController.process(container, DefaultProcessor.new, workspace)
 
 #Get models
@@ -52,6 +52,8 @@ attributeController = getAttributeController
 attributeModel = attributeController.model
 graphController = getGraphController
 graphModel = graphController.model
+
+
 
 #Execute pagerank
 pagerank = PageRank.new
@@ -62,6 +64,7 @@ pagerank.execute(graphModel, attributeModel);
 
 #Get nodes and sort by pagerank
 nodes = graphModel.graph.nodes.toArray
+
 class PRComparator
   include Comparator
   
@@ -71,7 +74,10 @@ class PRComparator
     return -p1.compareTo(p2)
   end
 end
-Arrays.sort(nodes, PRComparator.new)
+
+nodes.each {|node| puts "#{node.nodeData.attributes.value("pagerank")}"}
+
+java.util.Arrays.sort(nodes, PRComparator.new)
 
 #Display top 10
 for i in 0..10
