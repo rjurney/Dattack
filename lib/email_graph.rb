@@ -80,7 +80,7 @@ class EmailGraph < Pacer::TinkerGraph
     all_edges.each do |edge|      
       new_edge, status = g1.find_or_create_edge(g1.v(unique_key => edge.out_v.first[unique_key]).first, g1.v(unique_key => edge.in_v.first[unique_key]).first, edge.label, edge.properties)
 	    if status === true
-	       new_edge['volume'] = (new_edge['volume'].to_i||0) + (edge['volume'].to_i||0)
+	       new_edge['Weight'] = (new_edge['Weight'].to_i||0) + (edge['Weight'].to_i||0)
 	    end
     end
     g1
@@ -102,9 +102,9 @@ class EmailGraph < Pacer::TinkerGraph
              if e1.in_v.first[unique_key] === e2.in_v.first[unique_key]
                 match = true
                 puts "Match on #{e1.out_v.first[unique_key]} <-> #{e1.in_v.first[unique_key]}"
-                volume = (e1['volume']||0) + (e2['volume']||0)
+                volume = (e1['Weight']||0) + (e2['Weight']||0)
           	    e1.properties = intersect_hash e1.properties, e2.properties
-          	    e1['volume'] = volume
+          	    e1['Weight'] = volume
                 break
              end
           end
@@ -146,4 +146,24 @@ class EmailGraph < Pacer::TinkerGraph
   def union_hash(hash1, hash2)
     hash1.merge hash2
   end
+  
+  def wk_core!(k)
+    # Modify the current graph using an weighted k-core.  
+    # See that paper on this
+		while true
+		  removed_count = 0
+			v.bulk_job(v.count, self) do |v|
+			  degree = 0.0
+			  v.in_e.each {|e| degree += e['Weight'].to_f}
+				if degree < k
+					self.remove_vertex v
+					removed_count += 1
+				end
+			end
+			if removed_count == 0 #k-core is done!
+		    break
+		  end
+		end
+	end
+	
 end

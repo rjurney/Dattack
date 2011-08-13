@@ -130,9 +130,9 @@ messages[resume_id..MESSAGE_COUNT].each do |message_id|
           edge, status = graph.find_or_create_edge(from, to, 'sent')
           props = edge.properties || {}
           # Ugly as all hell, but JSON won't let you have a numeric key in an object...
-          props.merge!({ 'volume' => ((props['volume'].to_i || 0) + 1.0/(recipient_count||1.0)).to_s })
+          props.merge!({ 'Weight' => ((props['Weight'].to_i || 0) + 1.0/(recipient_count||1.0)).to_s })
           edge.properties = props
-          puts "[#{message_id}] #{from_address} --> #{to_address} [to] #{props['volume']}"
+          puts "[#{message_id}] #{from_address} --> #{to_address} [to] #{props['Weight']}"
         end
       end
 
@@ -144,9 +144,9 @@ messages[resume_id..MESSAGE_COUNT].each do |message_id|
           edge, status = graph.find_or_create_edge(from, cc, 'sent')
           props = edge.properties || {}
           # Ugly as all hell, but JSON won't let you have a numeric key in an object...
-          props.merge!({ 'volume' => ((props['volume'].to_i || 0) + 1.0/(recipient_count||1.0)).to_s })
+          props.merge!({ 'Weight' => ((props['Weight'].to_i || 0) + 1.0/(recipient_count||1.0)).to_s })
           edge.properties = props
-          puts "[#{message_id}] #{from_address} --> #{cc_address} [cc] #{props['volume']}"
+          puts "[#{message_id}] #{from_address} --> #{cc_address} [cc] #{props['Weight']}"
         end
       end
   
@@ -158,9 +158,9 @@ messages[resume_id..MESSAGE_COUNT].each do |message_id|
           edge, status = graph.find_or_create_edge(from, bcc, 'sent')
           props = edge.properties || {}
           # Ugly as all hell, but JSON won't let you have a numeric key in an object...
-          props.merge!({ 'volume' => ((props['volume'].to_i || 0) + 1.0/(recipient_count||1.0)).to_s })
+          props.merge!({ 'Weight' => ((props['Weight'].to_i || 0) + 1.0/(recipient_count||1.0)).to_s })
           edge.properties = props          
-          puts "[#{message_id}] #{from_address} --> #{bcc_address} [bcc] #{props['volume']}"
+          puts "[#{message_id}] #{from_address} --> #{bcc_address} [bcc] #{props['Weight']}"
         end
       end
     end
