@@ -24,7 +24,7 @@ module Kontexa
 
     # Sinatra setup
     set :static, true
-    set :show_exceptions, true
+    set :show_exceptions, false
     set :public, File.dirname(__FILE__) + '/static'
     set :views, File.dirname(__FILE__) + '/views'
     set :sessions, true # Using redis sessions to span heroku instances
@@ -59,7 +59,7 @@ module Kontexa
     end
 
     get "/" do
-      if @access_token or (session[:oauth][:access_token] and session[:oauth][:access_token_secret])
+      if @access_token
         response = @access_token.get('https://www.googleapis.com/userinfo/email?alt=json')
         if response.is_a?(Net::HTTPSuccess)
           @email = JSON.parse(response.body)['data']['email']
@@ -87,13 +87,14 @@ module Kontexa
     end
 
     get "/auth" do
-      unless @access_token and @request_token
-        STDERR.puts "Did not have access_token and request_token.  Redirecting to /"
+      unless @request_token
+        STDERR.puts "Did not have request_token.  Redirecting to /"
         redirect "/"
       end
       @access_token = @request_token.get_access_token :oauth_verifier => params[:oauth_verifier]
       session[:oauth][:access_token] = @access_token.token
       session[:oauth][:access_token_secret] = @access_token.secret
+      STDERR.puts ""
       @email = session[:oauth][:email]
 
       json_token = JSON({ :token => @access_token.token, :secret => @access_token.secret, :email => @email, :date => DateTime.now.to_s })
