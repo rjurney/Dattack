@@ -63,8 +63,10 @@ module Kontexa
         else
           STDERR.puts "could not get email: #{response.inspect}"
         end
+        STDERR.puts "Thanks page!"
         erb :authed
       else
+        STDERR.puts "Landing page!"
         erb :landing
       end
     end
