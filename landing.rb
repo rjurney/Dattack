@@ -87,6 +87,7 @@ module Kontexa
       unless @request_token
         STDERR.puts "Did not have request_token.  Redirecting to /"
         redirect "/"
+        return
       end
       @access_token = @request_token.get_access_token :oauth_verifier => params[:oauth_verifier]
       session[:oauth][:access_token] = @access_token.token
