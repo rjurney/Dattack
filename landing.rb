@@ -27,7 +27,7 @@ module Kontexa
     set :show_exceptions, false
     set :public, File.dirname(__FILE__) + '/static'
     set :views, File.dirname(__FILE__) + '/views'
-    set :sessions, true # Using redis sessions to span heroku instances
+    set :sessions, true
 
     # Object persistence setup
     redis_uri = URI.parse(ENV["REDISTOGO_URL"])
