@@ -15,4 +15,4 @@ key = ARGV[0]
 redis_uri = URI.parse(ENV["REDISTOGO_URL"])
 redis = Redis.new(:host => redis_uri.host, :port => redis_uri.port, :password => redis_uri.password)
 
-puts redis.get 'access_token:' + key
+puts redis.get key

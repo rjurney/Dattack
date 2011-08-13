@@ -86,6 +86,7 @@ messages[resume_id..MESSAGE_COUNT].each do |message_id|
   begin
     msg = imap.fetch(message_id,'RFC822.HEADER')[0].attr['RFC822.HEADER']
     mail = TMail::Mail.parse(msg)
+    # No from - no from node - skip
     next unless mail.header['from'] and mail.header['from'].respond_to? 'addrs'
     from_addresses = mail.header['from'].addrs
   rescue Exception => e
