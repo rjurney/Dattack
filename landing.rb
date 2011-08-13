@@ -6,7 +6,6 @@ require 'sinatra/base'
 require 'erb'
 require 'json'
 require 'redis'
-require 'redis-store'
 require 'tmail'
 require 'uri'
 require 'oauth'
@@ -19,8 +18,6 @@ require 'date'
 require 'date/format'
 module Kontexa
   class Kontexa::HomePage < Sinatra::Base
-    register Sinatra::Cache
-    #use Rack::Session::Redis, :redis_server => ENV["REDISTOGO_URL"]
 
     # Sinatra setup
     set :static, true
