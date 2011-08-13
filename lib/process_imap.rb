@@ -88,6 +88,22 @@ messages[resume_id..MESSAGE_COUNT].each do |message_id|
     mail = TMail::Mail.parse(msg)
     # No from - no from node - skip
     next unless mail.header['from'] and mail.header['from'].respond_to? 'addrs'
+    
+    # Get a count of all edges to get a divisor for outgoing edge weights
+    recipient_count = 0.0
+    if mail.header['to'] and mail.header['to'].respond_to? 'addrs'
+      to_addresses = mail.header['to'].addrs
+      recipient_count += to_addresses.size
+    end
+    if mail.header['cc'] and mail.header['cc'].respond_to? 'addrs'
+      cc_addresses = mail.header['cc'].addrs
+      recipient_count += cc_addresses.size
+    end
+    if mail.header['bcc'] and mail.header['bcc'].respond_to? 'addrs'
+      bcc_addresses = mail.header['bcc'].addrs
+      recipient_count += bcc_addresses.size
+    end
+    
     from_addresses = mail.header['from'].addrs
   rescue Exception => e
     skipped_ids << message_id
@@ -114,7 +130,7 @@ messages[resume_id..MESSAGE_COUNT].each do |message_id|
           edge, status = graph.find_or_create_edge(from, to, 'sent')
           props = edge.properties || {}
           # Ugly as all hell, but JSON won't let you have a numeric key in an object...
-          props.merge!({ 'volume' => ((props['volume'].to_i || 0) + 1).to_s })
+          props.merge!({ 'volume' => ((props['volume'].to_i || 0) + 1.0/(recipient_count||1.0)).to_s })
           edge.properties = props
           puts "[#{message_id}] #{from_address} --> #{to_address} [to] #{props['volume']}"
         end
@@ -128,7 +144,7 @@ messages[resume_id..MESSAGE_COUNT].each do |message_id|
           edge, status = graph.find_or_create_edge(from, cc, 'sent')
           props = edge.properties || {}
           # Ugly as all hell, but JSON won't let you have a numeric key in an object...
-          props.merge!({ 'volume' => ((props['volume'].to_i || 0) + 1).to_s })
+          props.merge!({ 'volume' => ((props['volume'].to_i || 0) + 1.0/(recipient_count||1.0)).to_s })
           edge.properties = props
           puts "[#{message_id}] #{from_address} --> #{cc_address} [cc] #{props['volume']}"
         end
@@ -142,7 +158,7 @@ messages[resume_id..MESSAGE_COUNT].each do |message_id|
           edge, status = graph.find_or_create_edge(from, bcc, 'sent')
           props = edge.properties || {}
           # Ugly as all hell, but JSON won't let you have a numeric key in an object...
-          props.merge!({ 'volume' => ((props['volume'].to_i || 0) + 1).to_s })
+          props.merge!({ 'volume' => ((props['volume'].to_i || 0) + 1.0/(recipient_count||1.0)).to_s })
           edge.properties = props          
           puts "[#{message_id}] #{from_address} --> #{bcc_address} [bcc] #{props['volume']}"
         end
@@ -157,19 +173,6 @@ messages[resume_id..MESSAGE_COUNT].each do |message_id|
   rescue Exception => e
     puts "Exception parsing email: #{e.class} #{e.message} #{e.backtrace}}"
     skipped_ids << message_id
-    imap = Net::IMAP.new('imap.gmail.com', 993, usessl = true, certs = nil, verify = false)
-    consumer_key = ENV["CONSUMER_KEY"] || ENV["consumer_key"]
-    consumer_secret = ENV["CONSUMER_SECRET"] || ENV["consumer_secret"]
-    token_json = redis.get 'access_token:' + USERNAME
-    token = JSON token_json
-    imap.authenticate('XOAUTH', USERNAME,
-      :consumer_key => consumer_key,
-      :consumer_secret => consumer_secret,
-      :token => token['token'],
-      :token_secret => token['secret']
-    )
-    imap.examine(folder) # examine is read only  
-    messages = imap.search(['ALL'])
     next
   # Temporary thing to get the class of the 'end of file reached' error that prints
   # After I find the class of the Error, I will handle it and re-initialize the IMAP
