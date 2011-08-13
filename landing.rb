@@ -104,6 +104,8 @@ module Kontexa
     end
 
     get "/logout" do
+      @access_token = nil
+      @request_token = nil
       session[:oauth] = {}
       redirect "/"
     end
