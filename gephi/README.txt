@@ -1,3 +1,8 @@
+# Getting the graphs
+bin/keys_redis.rb #shows available keys TODO: automate via SQS again
+jruby lib/process_imap.rb <email> #creates graph, stores it to Voldemort
+bin/vold_to_graphml.rb # Dumps graphml to /tmp
+
 Steps to automate graphs in gephi:
 
 # Scrape the imap inbox
