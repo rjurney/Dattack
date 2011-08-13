@@ -92,7 +92,7 @@ module Kontexa
       @access_token = @request_token.get_access_token :oauth_verifier => params[:oauth_verifier]
       session[:oauth][:access_token] = @access_token.token
       session[:oauth][:access_token_secret] = @access_token.secret
-      STDERR.puts ""
+      STDERR.puts "Fetched new access token from request token"
       @email = session[:oauth][:email]
 
       json_token = JSON({ :token => @access_token.token, :secret => @access_token.secret, :email => @email, :date => DateTime.now.to_s })
