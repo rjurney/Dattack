@@ -1,17 +1,12 @@
 # Getting the graphs
 bin/keys_redis.rb #shows available keys TODO: automate via SQS again
-jruby lib/process_imap.rb <email> #creates graph, stores it to Voldemort
-bin/vold_to_graphml.rb # Dumps graphml to /tmp
-
-Steps to automate graphs in gephi:
-
-# Scrape the imap inbox
-jruby lib/process_imap <email>
-# Dump to graphml
+bin/scrape_inbox <email>
 bin/vold_to_graphml.rb <email>
 
+# Steps to automate graphs in gephi:
+
 # Use Gephi to render, filter and and export the network
-Gephi -> Import /tmp/imap:<email>.graphml
+* Gephi -> Import /tmp/imap:<email>.graphml
 Gephi -> Data Table -> Copy node 'address' field to 'Label' field (or fix in JSON!)
 Gephi -> Data Table -> Copy edge 'volume' field to 'Weight' field (or fix in JSON!)
 Gephi -> Overview -> Ranking -> Nodes -> Size/Weight -> Degree (1, 100 linear)

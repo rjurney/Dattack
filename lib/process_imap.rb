@@ -10,7 +10,6 @@ require 'uri'
 require 'redis'
 require 'lib/graph_client'
 require 'lib/email_graph'
-require 'lib/email_mixin'
 require 'gmail_xoauth'
 require 'jcode'
 $KCODE = 'UTF8'
@@ -88,7 +87,7 @@ class ProcessImap
       begin
         from_addresses.each do |t_from|
           from_address = t_from.address.downcase.gsub /"/, '' #"
-          from = @graph.find_or_create_vertex({:type => 'email', :address => from_address, :network => @user_email}, :address)
+          from = @graph.find_or_create_vertex({:type => 'email', :Label => from_address, :network => @user_email}, :Label)
       
           self.build_connections from_address, from, mail, recipient_count, message_id
         end
@@ -113,12 +112,12 @@ class ProcessImap
     end
 
     # Final save!
-    self.save_state message_id
+    self.save_state nil
     @graph_client.voldemort.delete "resume_id:#{@user_email}"
     puts "Skipped IDs: #{skipped_ids}"
   end
   
-  def save_state(message_id)
+  def save_state(message_id=nil)
     puts "Saving... #{graph}"
     
     # Graphml
@@ -129,7 +128,7 @@ class ProcessImap
     # Voldemort as JSON
     @graph_client.set @user_key, @graph
     # Save the message_id we are on for resume, unless we're all done
-    @graph_client.voldemort.put "resume_id:#{@user_email}", message_id.to_s
+    @graph_client.voldemort.put "resume_id:#{@user_email}", message_id.to_s if message_id
   end
   
   def build_connections(from_address, from, mail, recipient_count, message_id)
@@ -138,7 +137,7 @@ class ProcessImap
         to_addresses = mail.header[type].addrs
         to_addresses.each do |t_to|
           to_address = t_to.address.downcase.gsub /"/, '' #"
-          to = @graph.find_or_create_vertex({:type => 'email', :address => to_address, :network => @user_email}, :address)
+          to = @graph.find_or_create_vertex({:type => 'email', :Label => to_address, :network => @user_email}, :Label)
           edge, status = @graph.find_or_create_edge(from, to, 'sent')
           props = edge.properties || {}
           # Ugly as all hell, but JSON won't let you have a numeric key in an object...

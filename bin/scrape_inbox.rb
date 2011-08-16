@@ -1,3 +1,5 @@
+#!/usr/bin/env jruby
+
 require 'lib/process_imap'
 
 def is_valid?(email)
@@ -9,12 +11,12 @@ def is_valid?(email)
   end
 end
 
-unless(ARGV[0] and is_valid? ARGV[0])
+unless ARGV[0] and (is_valid? ARGV[0])
     puts "bin/scrape_inbox <email_address>"
     exit
 end
 
-unless(ENV['VOLDEMORT_STORE'] && ENV['VOLDEMORT_ADDRESS'])
+unless ENV['VOLDEMORT_STORE'] and ENV['VOLDEMORT_ADDRESS']
     puts "Must set ENV['VOLDEMORT_STORE'] and ENV['VOLDEMORT_ADDRESS']"
     exit
 end
