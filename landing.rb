@@ -123,4 +123,25 @@ module Kontexa
       end
     end
   end
+  
+# @sqs = RightAws::SqsGen2.new(ENV['AWS_ACCESS_KEY_ID'], ENV['AWS_SECRET_ACCESS_KEY'])
+# @queue = RightAws::SqsGen2::Queue.new(@sqs, 'kontexa_test')
+# @queue.clear() # Dev only!
+# 
+# post '/email' do
+#   @uuid_factory = UUID.new
+#   uuid = @uuid_factory.generate
+#   puts "UUID: #{uuid}"
+#   json = JSON.generate(params)
+# 
+#   @redis.set(uuid, json)
+#   ['From', 'To', 'Cc', 'sender', 'subject', 'body-plain'].each do |key|
+#     puts "###{key}##  #{params[key]}"
+#   end
+#   
+#   # Need to put the identity of the user of the service here, reliably, somehow, appended to the uuid?
+#   @queue.push uuid
+#   "true"
+# end
+
 end

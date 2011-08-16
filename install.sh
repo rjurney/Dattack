@@ -2,6 +2,7 @@
 mkdir deps
 cd deps
 
+# Get the environe#ment vars from me
 
 # Download, install and configure Voldemort
 wget https://github.com/downloads/voldemort/voldemort/voldemort-0.81.tar.gz

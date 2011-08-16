@@ -1,5 +1,6 @@
 module EmailMixin
-  def count_recipients
+
+  def count_recipients(mail)
     for to in ['to', 'cc', 'bcc']
       if mail.header[to] and mail.header[to].respond_to? 'addrs'
         to_addresses = mail.header[to].addrs
@@ -8,7 +9,7 @@ module EmailMixin
     end
   end
 
-  def new_imap
+  def new_imap(imap, redis)
     imap.close if imap and imap.respond_to? 'close'
     imap = Net::IMAP.new('imap.gmail.com', 993, usessl = true, certs = nil, verify = false)
 	  consumer_key = ENV["CONSUMER_KEY"] || ENV["consumer_key"]
@@ -25,7 +26,7 @@ module EmailMixin
 	  imap
 	end
 	
-	def build_connections types
+	def build_connections(types, mail, graph)
 	  for type in types
 	    if mail.header[type] and mail.header[type].respond_to? 'addrs'
         to_addresses = mail.header[type].addrs
@@ -60,15 +61,15 @@ module EmailMixin
     
     # Graphml
     system "rm /tmp/#{USERKEY}.graphml"
-    graph.export "/tmp/#{USERKEY}.graphml"
+    @graph.export "/tmp/#{USERKEY}.graphml"
     
     # JSON -> /tmp
-    graph_client.write_voldemort_json USERKEY
+    @graph_client.write_voldemort_json USERKEY
     
     # Voldemort as JSON
-    graph_client.set USERKEY, graph
+    @graph_client.set USERKEY, graph
     
     # Save the message_id we are on for resume, unless we're all done
-    graph_client.voldemort.put "resume_id:#{USERKEY}", message_id.to_s
+    @graph_client.voldemort.put "resume_id:#{USERKEY}", message_id.to_s
   end
 end
