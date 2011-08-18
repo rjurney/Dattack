@@ -20,4 +20,4 @@ email = ARGV[0]
 puts "Scraping inbox of #{email}..."
 system "bin/scrape_inbox.rb #{email}"
 system "bin/dump_k_core.rb #{email} 2.0 /tmp/"
-system "gephi #{email}"
+system "./gephi.rb /tmp/imap\:#{email}-2.0-core.graphml"

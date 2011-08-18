@@ -10,6 +10,8 @@ require 'tmail'
 require 'uri'
 require 'oauth'
 require 'oauth/consumer'
+require 'lib/graph_client'
+require 'lib/email_graph'
 
 require 'jcode'
 $KCODE = 'UTF8'
@@ -112,6 +114,20 @@ module Kontexa
     
     get "/demo" do
       redirect "/demo/index.html"
+    end
+    
+    get "/graph" do
+      @graph_client = GraphClient.new ENV['VOLDEMORT_STORE'], ENV['VOLDEMORT_ADDRESS']
+      graph = @graph_client.get 'imap:russell.jurney@gmail.com'
+      @graph_json = graph.to_json
+      erb :graph
+    end
+    
+    get "/graph_json" do
+      content_type :json
+      @graph_client = GraphClient.new ENV['VOLDEMORT_STORE'], ENV['VOLDEMORT_ADDRESS']
+      graph = @graph_client.get 'imap:russell.jurney@gmail.com'
+      @graph_json = graph.to_json
     end
 
     def is_valid?(email)

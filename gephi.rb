@@ -1,4 +1,4 @@
-#!/usr/bin/env ruby
+#!/usr/bin/env jruby
 
 include Java
 require "/lib/java/gephi-toolkit.jar"
@@ -9,6 +9,9 @@ java_import org.gephi.data.attributes.api.AttributeController
 java_import org.gephi.graph.api.GraphController
 java_import org.gephi.io.importer.api.ImportController
 java_import org.gephi.io.importer.api.EdgeDefault
+java_import org.gephi.layout.plugin.force.yifanHu.YifanHu
+java_import org.gephi.layout.plugin.force.yifanHu.YifanHuLayout
+java_import org.gephi.layout.plugin.force.StepDisplacement
 
 java_import org.gephi.io.processor.plugin.DefaultProcessor
 java_import org.gephi.statistics.plugin.PageRank
@@ -53,38 +56,50 @@ attributeModel = attributeController.model
 graphController = getGraphController
 graphModel = graphController.model
 
+# Do layout
+layout = YifanHuLayout.new(nil, StepDisplacement.new(1.0));
+layout.setGraphModel(graphModel)
+layout.resetPropertiesValues()
+layout.setOptimalDistance(200.0)
+layout.initAlgo()
+for i in [0..100] do
+  break unless layout.canAlgo
+  puts "."
+  layout.goAlgo
+end
+
 
 
 #Execute pagerank
-pagerank = PageRank.new
-pagerank.setDirected(true)
-pagerank.setUseEdgeWeight(true)
-puts "Execute Pagerank p=#{pagerank.getProbability}"
-pagerank.execute(graphModel, attributeModel);
+# pagerank = PageRank.new
+# pagerank.setDirected(true)
+# pagerank.setUseEdgeWeight(true)
+# puts "Execute Pagerank p=#{pagerank.getProbability}"
+# pagerank.execute(graphModel, attributeModel);
 
 #Get nodes and sort by pagerank
-nodes = graphModel.graph.nodes.toArray
-
-class PRComparator
-  include Comparator
-  
-  def compare(n1, n2)
-    p1 = Float.new(n1.nodeData.attributes.value("pagerank"))
-    p2 = n2.nodeData.attributes.value("pagerank")
-    return -p1.compareTo(p2)
-  end
-end
-
-nodes.each {|node| puts "#{node.nodeData.attributes.value("pagerank")}"}
-
-java.util.Arrays.sort(nodes, PRComparator.new)
-
-#Display top 10
-for i in 0..10
-   node = nodes[i]
-   pr = node.nodeData.attributes.value("pagerank")
-   recruiter = node.nodeData.attributes.value("address")
-   id = node.nodeData.attributes.value("_id")
-   label = node.nodeData.label
-   puts "#{id} #{pr} #{recruiter}"
-end
+# nodes = graphModel.graph.nodes.toArray
+# 
+# class PRComparator
+#   include Comparator
+#   
+#   def compare(n1, n2)
+#     p1 = Float.new(n1.nodeData.attributes.value("pagerank"))
+#     p2 = n2.nodeData.attributes.value("pagerank")
+#     return -p1.compareTo(p2)
+#   end
+# end
+# 
+# nodes.each {|node| puts "#{node.nodeData.attributes.value("pagerank")}"}
+# 
+# java.util.Arrays.sort(nodes, PRComparator.new)
+# 
+# #Display top 10
+# for i in 0..10
+#    node = nodes[i]
+#    pr = node.nodeData.attributes.value("pagerank")
+#    recruiter = node.nodeData.attributes.value("address")
+#    id = node.nodeData.attributes.value("_id")
+#    label = node.nodeData.label
+#    puts "#{id} #{pr} #{recruiter}"
+# end

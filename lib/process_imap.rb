@@ -18,7 +18,7 @@ class ProcessImap
 
   attr_accessor :redis, :imap, :graph, :graph_client, :user_key, :user_email, :folder, :interrupted
   PREFIX = "imap:"
-  MESSAGE_COUNT = 5000
+  MESSAGE_COUNT = 100
 
   def initialize(user_email)
     @user_email = user_email
@@ -140,8 +140,11 @@ class ProcessImap
           to = @graph.find_or_create_vertex({:type => 'email', :Label => to_address, :network => @user_email}, :Label)
           edge, status = @graph.find_or_create_edge(from, to, 'sent')
           props = edge.properties || {}
+          added_weight = 1.0/(recipient_count||1.0)
+          to['Weight'] ||= 0
+          to['Weight'] += added_weight
           # Ugly as all hell, but JSON won't let you have a numeric key in an object...
-          props.merge!({ 'Weight' => ((props['Weight'].to_i || 0) + 1.0/(recipient_count||1.0)).to_s })
+          props.merge!({ 'Weight' => ((props['Weight'].to_i || 0) + added_weight).to_s })
           edge.properties = props
           puts "[#{message_id}] #{from_address} --> #{to_address} [#{type}] #{props['Weight']}"
         end

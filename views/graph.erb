@@ -1,0 +1,25 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"> 
+<html> 
+  <head> 
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> 
+    <link rel="stylesheet" href="/css/beta.css" type="text/css" />
+    <link rel="stylesheet" href="/css/graph.css" type="text/css" />
+    <title>Kontexa Email Graphalytics</title> 
+  </head>
+  <%= erb :chartbeat_analytics_top %>
+  <body> 
+    <div> 
+    	<div id="beta"> 
+    		<%= @graph_json %>
+    		<div class='gallery' id='chart'>
+    		</div>
+    	</div> 
+    </div>
+    <script type="text/javascript" src="/js/d3/d3.js"></script>
+    <script type="text/javascript" src="/js/d3/d3.geom.js"></script>
+    <script type="text/javascript" src="/js/d3/d3.layout.js"></script>
+    <script type="text/javascript" src="/js/graph.js"></script>
+    <%= erb :chartbeat_analytics_bottom %>
+    <%= erb :google_analytics %>
+  </body>
+</html>
