@@ -123,11 +123,35 @@ module Kontexa
       erb :graph
     end
     
-    get "/graph_json" do
+    get "/graph.json" do
       content_type :json
       @graph_client = GraphClient.new ENV['VOLDEMORT_STORE'], ENV['VOLDEMORT_ADDRESS']
-      graph = @graph_client.get 'imap:russell.jurney@gmail.com'
-      @graph_json = graph.to_json
+      graph = @graph_client.get 'imap:russell.jurney@gmail.com'      
+      graph_json = graph.to_json
+
+      # Translate to the expected D3 forced directed format
+      etl_graph = JSON graph_json
+      new_graph = {}
+      
+      # Sort nodes, map their ids to an array, make a mapping of those changes, and etl to the new node format
+      sorted_nodes = etl_graph['vertices'].sort {|x,y| x['_id'].to_i <=> y['_id'].to_i }
+      node_map = {}
+      sorted_nodes = sorted_nodes.each_index {|i| node_map[sorted_nodes[i]['_id']] = i; sorted_nodes[i]['_id'] = i}
+      etl_nodes = []
+      sorted_nodes.each {|node| etl_nodes << {:name => node['address'], :group => node['network']} }
+      new_graph['nodes'] = etl_nodes
+      
+      # Apply node mapping to edges, and etl them to expected format
+      mapped_links = []
+      etl_graph['edges'].each do |edge| 
+        mapped_links << {:source => node_map[edge['out_v']], 
+                         :target => node_map[edge['in_v']],
+                         :value => edge['Weight']}
+      end
+      new_graph['links'] = mapped_links
+      
+      # Now return the ETL'd graph that D3 force layout expects
+      new_graph.to_json
     end
 
     def is_valid?(email)
