@@ -134,11 +134,11 @@ module Kontexa
       new_graph = {}
       
       # Sort nodes, map their ids to an array, make a mapping of those changes, and etl to the new node format
-      sorted_nodes = etl_graph['vertices'].sort {|x,y| x['_id'].to_i <=> y['_id'].to_i }
+      sorted_nodes = etl_graph['vertices'].values.sort {|x,y| x['_id'].to_i <=> y['_id'].to_i }
       node_map = {}
-      sorted_nodes = sorted_nodes.each_index {|i| node_map[sorted_nodes[i]['_id']] = i; sorted_nodes[i]['_id'] = i}
+      sorted_nodes = sorted_nodes.each_index {|i| node_map[sorted_nodes[i]['_id'].to_s] = i; sorted_nodes[i]['_id'] = i}
       etl_nodes = []
-      sorted_nodes.each {|node| etl_nodes << {:name => node['address'], :group => node['network']} }
+      sorted_nodes.each {|node| etl_nodes << {:name => node['Label'], :group => node['network']} }
       new_graph['nodes'] = etl_nodes
       
       # Apply node mapping to edges, and etl them to expected format

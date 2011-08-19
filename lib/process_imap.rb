@@ -18,7 +18,7 @@ class ProcessImap
 
   attr_accessor :redis, :imap, :graph, :graph_client, :user_key, :user_email, :folder, :interrupted
   PREFIX = "imap:"
-  MESSAGE_COUNT = 100
+  MESSAGE_COUNT = 500
 
   def initialize(user_email)
     @user_email = user_email
