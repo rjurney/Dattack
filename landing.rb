@@ -116,17 +116,17 @@ module Kontexa
       redirect "/demo/index.html"
     end
     
-    get "/graph" do
-      @graph_client = GraphClient.new ENV['VOLDEMORT_STORE'], ENV['VOLDEMORT_ADDRESS']
-      graph = @graph_client.get 'imap:jurney@gmail.com'
-      @graph_json = graph.to_json
+    get "/graph/:k" do |k|
+      @k = k
       erb :graph
     end
     
-    get "/graph.json" do
+    get "/graph.json/:k" do |k|
+      k = k.to_f
       content_type :json
       @graph_client = GraphClient.new ENV['VOLDEMORT_STORE'], ENV['VOLDEMORT_ADDRESS']
-      graph = @graph_client.get 'imap:russell.jurney@gmail.com'      
+      graph = @graph_client.get 'imap:russell.jurney@gmail.com'
+      graph.wk_core! k
       graph_json = graph.to_json
 
       # Translate to the expected D3 forced directed format
