@@ -118,7 +118,7 @@ module Kontexa
     
     get "/graph" do
       @graph_client = GraphClient.new ENV['VOLDEMORT_STORE'], ENV['VOLDEMORT_ADDRESS']
-      graph = @graph_client.get 'imap:russell.jurney@gmail.com'
+      graph = @graph_client.get 'imap:jurney@gmail.com'
       @graph_json = graph.to_json
       erb :graph
     end
@@ -143,10 +143,14 @@ module Kontexa
       
       # Apply node mapping to edges, and etl them to expected format
       mapped_links = []
-      etl_graph['edges'].each do |edge| 
-        mapped_links << {:source => node_map[edge['out_v']], 
-                         :target => node_map[edge['in_v']],
-                         :value => edge['Weight']}
+      etl_graph['edges'].each do |edge|
+        puts edge.to_json
+        puts edge[1]['Weight']
+         foo = {:source => node_map[edge[1]['out_v']], 
+                         :target => node_map[edge[1]['in_v']],
+                         :value => edge[1]['Weight'].to_i}
+         puts JSON foo
+        mapped_links << foo
       end
       new_graph['links'] = mapped_links
       
