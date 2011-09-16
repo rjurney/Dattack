@@ -21,11 +21,15 @@ class GraphClient
 	end
 	
 	def get(key)
-		graph = return_graph get_json key
+		graph = return_graph clean_json get_json key
 	end
 	
 	def get_json(key)
 		@voldemort.get key
+	end
+	
+	def clean_json(json)
+		json.gsub(/\r/,"").gsub(/\n/,"")
 	end
 	
 	def set(key, graph)

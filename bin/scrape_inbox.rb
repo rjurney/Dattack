@@ -22,5 +22,6 @@ unless ENV['VOLDEMORT_STORE'] and ENV['VOLDEMORT_ADDRESS']
 end
 
 email = ARGV[0]
-getter = ProcessImap.new email
+message_count = ARGV[1]
+getter = ProcessImap.new email, message_count||500
 getter.scan_folder

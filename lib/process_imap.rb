@@ -16,13 +16,13 @@ $KCODE = 'UTF8'
 
 class ProcessImap
 
-  attr_accessor :redis, :imap, :graph, :graph_client, :user_key, :user_email, :folder, :interrupted
+  attr_accessor :redis, :imap, :graph, :graph_client, :user_key, :user_email, :folder, :interrupted, :message_count
   PREFIX = "imap:"
-  MESSAGE_COUNT = 500
-
-  def initialize(user_email)
+  
+  def initialize(user_email, message_count)
     @user_email = user_email
     @user_key = PREFIX + user_email
+    @message_count = message_count.to_i
 
     # Trap ctrl-c
     @interrupted = false
@@ -49,13 +49,14 @@ class ProcessImap
     @graph_client.voldemort.get "resume_id:#{@user_email}"
     resume_id = [(resume_id.to_i - 1), 0].max
     if resume_id
-      messages = messages[resume_id..MESSAGE_COUNT]
+      puts "Resuming from #{resume_id}"
+      messages = messages[resume_id..@message_count]
     else
       # Flush the user's imap records
       @graph_client.del @user_key
     end
 
-    messages[resume_id..MESSAGE_COUNT].each do |message_id|
+    messages[resume_id..@message_count].each do |message_id|
       # Trap ctrl-c to persist
       if @interrupted
         self.save_state message_id

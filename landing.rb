@@ -144,12 +144,9 @@ module Kontexa
       # Apply node mapping to edges, and etl them to expected format
       mapped_links = []
       etl_graph['edges'].each do |edge|
-        puts edge.to_json
-        puts edge[1]['Weight']
-         foo = {:source => node_map[edge[1]['out_v']], 
+        foo = {:source => node_map[edge[1]['out_v']], 
                          :target => node_map[edge[1]['in_v']],
                          :value => edge[1]['Weight'].to_i}
-         puts JSON foo
         mapped_links << foo
       end
       new_graph['links'] = mapped_links
