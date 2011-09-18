@@ -11,6 +11,8 @@ require 'redis'
 require 'lib/graph_client'
 require 'lib/email_graph'
 require 'gmail_xoauth'
+require 'jwz_threading'
+
 require 'jcode'
 $KCODE = 'UTF8'
 
