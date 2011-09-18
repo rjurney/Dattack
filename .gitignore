@@ -4,3 +4,4 @@
 deps/voldemort
 deps/blueprints
 deps/pacer
+.idea
