@@ -24,4 +24,6 @@ end
 email = ARGV[0]
 message_count = ARGV[1]
 getter = ProcessImap.new email, message_count||500
+STDERR.puts "Starting inbox scan..."
 getter.scan_folder
+STDERR.puts "Done scanning inbox!"

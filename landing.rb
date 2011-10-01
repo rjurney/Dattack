@@ -23,7 +23,7 @@ module Kontexa
 
     # Sinatra setup
     set :static, true
-    set :show_exceptions, false
+    set :show_exceptions, true
     set :public, File.dirname(__FILE__) + '/static'
     set :views, File.dirname(__FILE__) + '/views'
     set :sessions, true
@@ -117,17 +117,22 @@ module Kontexa
     end
     
     get "/graph/:k" do |k|
-      @k = k
+      @k = k.to_f
       erb :graph
     end
     
     get "/graph.json/:k" do |k|
-      k = k.to_f
+      puts "#"
+      @k = k.to_f
       content_type :json
       @graph_client = GraphClient.new ENV['VOLDEMORT_STORE'], ENV['VOLDEMORT_ADDRESS']
       graph = @graph_client.get 'imap:russell.jurney@gmail.com'
-      graph.wk_core! k
-      graph_json = graph.to_json
+      graph.wk_core! @k
+      if graph.v.count > 0 and graph.e.count > 0
+        graph_json = graph.to_json
+      else
+        graph_json = '{"vertices": {},"edges": {}}'
+      end
 
       # Translate to the expected D3 forced directed format
       etl_graph = JSON graph_json
@@ -144,6 +149,7 @@ module Kontexa
       # Apply node mapping to edges, and etl them to expected format
       mapped_links = []
       etl_graph['edges'].each do |edge|
+      puts "."
         foo = {:source => node_map[edge[1]['out_v']], 
                          :target => node_map[edge[1]['in_v']],
                          :value => edge[1]['Weight'].to_i}
@@ -152,6 +158,7 @@ module Kontexa
       new_graph['links'] = mapped_links
       
       # Now return the ETL'd graph that D3 force layout expects
+      puts "#"
       new_graph.to_json
     end
 

@@ -150,20 +150,24 @@ class EmailGraph < Pacer::TinkerGraph
   def wk_core!(k)
     # Modify the current graph using an weighted k-core.  
     # See that paper on this
-		while true
-		  removed_count = 0
-			v.bulk_job(v.count, self) do |v|
-			  degree = 0.0
-			  v.in_e.each {|e| degree += e['Weight'].to_f}
-				if degree < k
-					self.remove_vertex v
-					removed_count += 1
-				end
-			end
-			if removed_count == 0 #k-core is done!
-		    break
-		  end
-		end
-	end
-	
+    while true
+      removed_count = 0
+      begin
+        v.bulk_job(v.count, self) do |v|
+          degree = 0.0
+          v.in_e.each {|e| degree += e['Weight'].to_f}
+          if degree < k
+            self.remove_vertex v
+            removed_count += 1
+          end
+        end
+        if removed_count == 0 #k-core is done!
+          break
+        end
+      rescue
+        break
+      end
+    end
+  end
+  
 end

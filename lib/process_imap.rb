@@ -17,7 +17,7 @@ $KCODE = 'UTF8'
 
 class ProcessImap
 
-  attr_accessor :redis, :imap, :graph, :graph_client, :user_key, :user_email, :folder, :interrupted, :message_count
+  attr_accessor :redis, :imap, :graph, :graph_client, :user_key, :user_email, :folder, :interrupted, :message_count, :messages
   PREFIX = "imap:"
   
   def initialize(user_email, message_count)
@@ -28,6 +28,7 @@ class ProcessImap
     # Trap ctrl-c
     @interrupted = false
     trap("SIGINT") { @interrupted = true }
+    trap("SIGALRM") { puts "Caught SIG_ALRM so it doesn't complain"}
 
     # Graph and persistence in Voldemort
     @graph_client = GraphClient.new ENV['VOLDEMORT_STORE'], ENV['VOLDEMORT_ADDRESS']
@@ -36,6 +37,9 @@ class ProcessImap
     # Setup redis
     redis_uri = URI.parse(ENV["REDISTOGO_URL"])
     @redis = Redis.new(:host => redis_uri.host, :port => redis_uri.port, :password => redis_uri.password)
+
+    @messages = []
+    self
   end
 
   def scan_folder
@@ -70,7 +74,10 @@ class ProcessImap
         mail = TMail::Mail.parse(msg)
         # No from node - skip
         next unless mail.header['from'] and mail.header['from'].respond_to? 'addrs'
-    
+
+        # Stuff messages in an array for later processing of threads
+        @messages <<mail
+
         # Get a count of all edges to get a divisor for outgoing edge weights
         recipient_count = count_recipients mail
         from_addresses = mail.header['from'].addrs
@@ -117,6 +124,9 @@ class ProcessImap
     self.save_state nil
     @graph_client.voldemort.delete "resume_id:#{@user_email}"
     puts "Skipped IDs: #{skipped_ids}"
+
+    # Thread the emails to get communication between users of mailing lists
+    self.process_message_ids
   end
   
   def save_state(message_id=nil)
@@ -174,11 +184,38 @@ class ProcessImap
 	  recipient_count = 0
     for to in ['to', 'cc', 'bcc']
       if mail.header[to] and mail.header[to].respond_to? 'addrs'
-        to_addresses = mail.header[to].addrs
+        to_addresses = mail.header[to].                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     [[[[[[   ]]]]]]
         recipient_count += to_addresses.size
       end
     end
     recipient_count
   end
-	
+
+  def process_message_ids
+    message_ids = {}
+    in_reply_tos = {}
+    @messages.each do |message|
+      message.header.keys.each {|key| puts "Key: #{key} Value: #{message.header[key]}"} >pep
+      if message.header['message-id'] and message.header['message-id'].respond_to? 'addrs'
+        from = message.header['from']
+        to = message.header['to']
+        message_id = message.header['message-id']
+        message_ids[message_id] = message
+      end
+      if message.header['in-reply-to'] and message.header['in-reply-to'].respond_to?'addrs'
+        from = message.header['from']
+        to = message.header['to']
+        in_reply_to = message.header['in-reply-to']
+        in_reply_tos[in_reply_to] = message
+      end
+    end
+
+    in_reply_tos.keys.each do |reply_key|
+      if message_ids[reply_key]
+        edge, status = @graph.find_or_create_edge(from, to, 'sent')
+      end
+
+    end
+  end
+
 end
