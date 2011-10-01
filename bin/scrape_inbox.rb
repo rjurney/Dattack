@@ -12,8 +12,13 @@ def is_valid?(email)
 end
 
 unless ARGV[0] and (is_valid? ARGV[0])
-    puts "bin/scrape_inbox <email_address>"
+    puts "bin/scrape_inbox <email_address> <email_count=500>"
     exit
+end
+
+message_count = 500
+if ARGV[1]
+  message_count = ARGV[1]
 end
 
 unless ENV['VOLDEMORT_STORE'] and ENV['VOLDEMORT_ADDRESS']
@@ -22,8 +27,7 @@ unless ENV['VOLDEMORT_STORE'] and ENV['VOLDEMORT_ADDRESS']
 end
 
 email = ARGV[0]
-message_count = ARGV[1]
-getter = ProcessImap.new email, message_count||500
+getter = ProcessImap.new email, message_count
 STDERR.puts "Starting inbox scan..."
 getter.scan_folder
 STDERR.puts "Done scanning inbox!"

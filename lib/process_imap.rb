@@ -184,7 +184,7 @@ class ProcessImap
 	  recipient_count = 0
     for to in ['to', 'cc', 'bcc']
       if mail.header[to] and mail.header[to].respond_to? 'addrs'
-        to_addresses = mail.header[to].                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     [[[[[[   ]]]]]]
+        to_addresses = mail.header[to]                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    [[[[[[   ]]]]]]
         recipient_count += to_addresses.size
       end
     end
