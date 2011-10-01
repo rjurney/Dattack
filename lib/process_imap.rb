@@ -76,10 +76,10 @@ class ProcessImap
         next unless mail.header['from'] and mail.header['from'].respond_to? 'addrs'
 
         # Stuff messages in an array for later processing of threads
-        @messages <<mail
+        @messages << mail
 
         # Get a count of all edges to get a divisor for outgoing edge weights
-        recipient_count = count_recipients mail
+        recipient_count = self.count_recipients(mail)
         from_addresses = mail.header['from'].addrs
         unless from_addresses
           puts "Skipped email without a from address!"
@@ -144,8 +144,8 @@ class ProcessImap
   end
   
   def build_connections(from_address, from, mail, recipient_count, message_id)
-	  for type in ['to', 'cc', 'bcc']
-	    if mail.header[type] and mail.header[type].respond_to? 'addrs'
+    for type in ['to', 'cc', 'bcc']
+      if mail.header[type] and mail.header[type].respond_to? 'addrs'
         to_addresses = mail.header[type].addrs
         to_addresses.each do |t_to|
           to_address = t_to.address.downcase.gsub /"/, '' #"
@@ -162,31 +162,30 @@ class ProcessImap
         end
       end
     end
-	end
-	
-	def new_imap
+  end
+  
+  def new_imap
     @imap.close if @imap and @imap.respond_to? 'close'
     @imap = Net::IMAP.new('imap.gmail.com', 993, usessl = true, certs = nil, verify = false)
-	  consumer_key = ENV["CONSUMER_KEY"] || ENV["consumer_key"]
-	  consumer_secret = ENV["CONSUMER_SECRET"] || ENV["consumer_secret"]
-	  token_json = @redis.get 'access_token:' + @user_email
-	  token = JSON token_json
-	  @imap.authenticate('XOAUTH', @user_email,
- 	    :consumer_key => consumer_key,
- 	    :consumer_secret => consumer_secret,
-  	  :token => token['token'],
-  	  :token_secret => token['secret']
-	  )
-	  @imap.examine(@folder) # examine is read only
-	end
-	
-	def count_recipients(mail)
-	  recipient_count = 0
+    consumer_key = ENV["CONSUMER_KEY"] || ENV["consumer_key"]
+    consumer_secret = ENV["CONSUMER_SECRET"] || ENV["consumer_secret"]
+    token_json = @redis.get 'access_token:' + @user_email
+    token = JSON token_json
+    @imap.authenticate('XOAUTH', @user_email,
+      :consumer_key => consumer_key,
+      :consumer_secret => consumer_secret,
+      :token => token['token'],
+      :token_secret => token['secret']
+    )
+    @imap.examine(@folder) # examine is read only
+  end
+  
+  def count_recipients(mail)
+    recipient_count = 0
     for to in ['to', 'cc', 'bcc']
-      if mail.header[to] and mail.header[to].respond_to? 'addrs'
-        to_addresses = mail.header[to]                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    [[[[[[   ]]]]]]
-        recipient_count += to_addresses.size
-      end
+      if mail.header and mail.header[to] and mail.header[to].respond_to? 'addrs'
+        recipient_count += mail.header[to].addrs.size
+      end                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
     end
     recipient_count
   end
